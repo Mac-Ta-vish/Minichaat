@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>MiniChaat + XO + Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body {margin:0;font-family:'Cairo',sans-serif;background:linear-gradient(135deg,#6a11cb,#2575fc);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding-top:20px;}
+.card {background:#ffffffdd;width:95%;max-width:600px;border-radius:20px;padding:25px;box-shadow:0 15px 35px rgba(0,0,0,0.2);display:flex;flex-direction:column;backdrop-filter:blur(10px);position:relative;}
+h1,h2 {text-align:center;color:#3b5cff;margin:0 0 10px 0;text-shadow:1px 1px 5px rgba(0,0,0,0.2);}
+.messages {flex:1;border-radius:15px;padding:12px;overflow-y:auto;background:#f2f6ff;box-shadow:inset 0 5px 10px rgba(0,0,0,0.05);margin-bottom:12px;font-size:15px;min-height:150px;}
+.msg {padding:8px 12px;border-radius:12px;margin-bottom:8px;word-wrap:break-word;font-weight:bold;animation:floatColor 5s linear infinite;cursor:default;transition:0.3s;}
+@keyframes floatColor{0%{filter:hue-rotate(0deg);}50%{filter:hue-rotate(180deg);}100%{filter:hue-rotate(360deg);}}
+.input-box{display:flex;gap:10px;margin-bottom:12px;}
+input{flex:1;padding:12px 16px;border-radius:25px;border:1px solid #ccc;outline:none;font-size:15px;box-shadow:inset 0 2px 5px rgba(0,0,0,0.05);}
+input:focus{border-color:#3b5cff;box-shadow:inset 0 2px 5px rgba(0,0,0,0.1);}
+button{padding:12px 20px;border-radius:25px;border:none;background:linear-gradient(45deg,#3b5cff,#6a11cb);color:white;font-size:15px;cursor:pointer;box-shadow:0 5px 10px rgba(0,0,0,0.15);transition: all 0.3s ease;}
+button:hover{transform:scale(1.05);box-shadow:0 8px 15px rgba(0,0,0,0.25);}
+
+/* لعبة XO */
+#xo-board {display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:10px;justify-content:center;}
+#xo-board button{width:60px;height:60px;font-size:24px;font-weight:bold;cursor:pointer;border-radius:12px;border:1px solid #3b5cff;background:#f2f6ff;transition:0.3s;}
+#xo-board button:hover{background:#e1e7ff;}
+#leaderboard {margin-top:15px;padding:10px;background:#f2f6ff;border-radius:12px;text-align:center;max-height:150px;overflow-y:auto;}
+#leaderboard span.gold{color:gold;font-weight:bold;}
+#leaderboard span.silver{color:silver;font-weight:bold;}
+#leaderboard span.bronze{color:#cd7f32;font-weight:bold;}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>MiniChaat + XO</h1>
+
+<div class="messages" id="messages"></div>
+<div class="input-box">
+<input id="text" placeholder="اكتب رسالة..." />
+<button onclick="send()">إرسال</button>
+</div>
+
+<h2>لعبة XO</h2>
+<div id="leaderboard"><strong>المتصدرين:</strong></div>
+<div id="xo-board">
+<button data-pos="0"></button><button data-pos="1"></button><button data-pos="2"></button>
+<button data-pos="3"></button><button data-pos="4"></button><button data-pos="5"></button>
+<button data-pos="6"></button><button data-pos="7"></button><button data-pos="8"></button>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ===== Firebase =====
+const firebaseConfig = {
+apiKey:"AIzaSyCRwY0eiSttQIVT7iBHgcHQQosSpEAA-LM",
+authDomain:"minichaat-net.firebaseapp.com",
+projectId:"minichaat-net",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ===== الدردشة =====
+const messages = document.getElementById('messages');
+const input = document.getElementById('text');
+let username = prompt("مرحبًا! ما اسمك؟") || "زائر";
+let userColor = prompt("اختر لونك المفضل (اسم اللون أو HEX)") || "#ff4444";
+
+function send(){if(input.value.trim()==="")return;db.collection("messages").add({name:username,text:input.value,color:userColor,time:Date.now()});input.value="";}
+function hexToRgb(hex){let r=0,g=0,b=0;if(hex.length==4){r="0x"+hex[1]+hex[1];g="0x"+hex[2]+hex[2];b="0x"+hex[3]+hex[3];}else if(hex.length==7){r="0x"+hex[1]+hex[2];g="0x"+hex[3]+hex[4];b="0x"+hex[5]+hex[6];}return [+r,+g,+b];}
+
+db.collection("messages").orderBy("time").onSnapshot(snapshot=>{
+messages.innerHTML="";
+snapshot.forEach(doc=>{
+const data=doc.data();
+const div=document.createElement("div");
+div.className="msg";
+div.textContent=data.name+": "+data.text;
+div.style.background=data.color;
+const rgb=hexToRgb(data.color);
+const brightness=(rgb[0]*299+rgb[1]*587+rgb[2]*114)/1000;
+div.style.color=(brightness>125)?"black":"white";
+if(data.name===username){div.style.cursor="pointer";div.title="اضغط لحذف هذه الرسالة";div.addEventListener("click",()=>{if(confirm("هل تريد حذف هذه الرسالة؟"))db.collection("messages").doc(doc.id).delete();});}
+messages.appendChild(div);
+});
+messages.scrollTop=messages.scrollHeight;
+});
+input.addEventListener("keypress",e=>{if(e.key==="Enter")send();});
+
+// ===== لعبة XO + المتصدرين =====
+const xoBoard = document.getElementById("xo-board");
+const cells = xoBoard.querySelectorAll("button");
+let turn = "X";
+
+function checkWinner(board){const combos=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];for(const c of combos){if(board[c[0]]&&board[c[0]]===board[c[1]]&&board[c[0]]===board[c[2]])return board[c[0]];}return null;}
+
+function updateLeaderboard(){
+const lb = document.getElementById("leaderboard");
+db.collection("scores").orderBy("score","desc").limit(5).get().then(snapshot=>{
+lb.innerHTML="<strong>المتصدرين:</strong><br>";
+let i=0;
+snapshot.forEach(doc=>{
+i++;
+const d=doc.data();
+let spanClass="";
+if(i===1)spanClass="gold";
+else if(i===2)spanClass="silver";
+else if(i===3)spanClass="bronze";
+lb.innerHTML+=`<span class="${spanClass}">${d.name}: ${d.score}</span><br>`;
+});
+});
+}
+
+cells.forEach(cell=>{
+cell.addEventListener("click",()=>{
+if(cell.textContent!=="")return;
+cell.textContent=turn;
+cell.style.transition="0.5s";cell.style.transform="scale(1.1)";
+setTimeout(()=>cell.style.transform="scale(1)",100);
+const board = Array.from(cells).map(c=>c.textContent);
+const winner = checkWinner(board);
+if(winner){
+alert(`${winner} فاز!`);
+if(winner===turn){ // المستخدم فاز
+const scoreDoc = db.collection("scores").doc(username);
+scoreDoc.get().then(doc=>{if(doc.exists)scoreDoc.update({score:doc.data().score+1});else scoreDoc.set({name:username,score:1});updateLeaderboard();});
+}
+cells.forEach(c=>c.textContent=""); 
+}
+turn=(turn==="X")?"O":"X";
+});
+});
+
+// تحديث المتصدرين عند تحميل الصفحة
+updateLeaderboard();
+</script>
+</body>
+</html>
