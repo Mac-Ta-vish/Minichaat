@@ -1,975 +1,1227 @@
 ﻿<!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MiniChaat + XO + Leaderboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-/* ===== إعدادات عامة ===== */
-* {
-    box-sizing: border-box;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة XO مع دردشة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== إعدادات أساسية ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
 
-body {
-    margin: 0;
-    font-family: 'Cairo', sans-serif;
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 20px;
-    direction: rtl;
-}
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.5s ease;
+        }
 
-.card {
-    background: rgba(255, 255, 255, 0.9);
-    width: 95%;
-    max-width: 650px;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    display: flex;
-    flex-direction: column;
-    backdrop-filter: blur(10px);
-    position: relative;
-    overflow: hidden;
-}
+        /* ===== الحاوية الرئيسية ===== */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
 
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 5px;
-    background: linear-gradient(to right, #6a11cb, #2575fc, #3b5cff);
-}
+        /* ===== الهيدر ===== */
+        header {
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-h1, h2 {
-    text-align: center;
-    color: #3b5cff;
-    margin: 0 0 15px 0;
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.1);
-}
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-h1 {
-    font-size: 1.8rem;
-    position: relative;
-    display: inline-block;
-    align-self: center;
-}
+        .logo h1 {
+            font-size: 1.8rem;
+        }
 
-h1::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    right: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(to left, transparent, #3b5cff, transparent);
-}
+        .user-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
 
-/* ===== منطقة الرسائل ===== */
-.messages-container {
-    position: relative;
-    margin-bottom: 15px;
-}
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
 
-.messages-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    padding: 0 5px;
-}
+        .btn-primary {
+            background: white;
+            color: #4f46e5;
+        }
 
-.messages-header span {
-    font-size: 0.9rem;
-    color: #555;
-    font-weight: bold;
-}
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
 
-#clear-chat {
-    background: transparent;
-    border: none;
-    color: #ff4444;
-    cursor: pointer;
-    font-size: 0.8rem;
-    padding: 5px 10px;
-    border-radius: 15px;
-    transition: all 0.3s;
-}
+        /* ===== المحتوى الرئيسي ===== */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
 
-#clear-chat:hover {
-    background: rgba(255, 68, 68, 0.1);
-}
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
 
-.messages {
-    flex: 1;
-    border-radius: 15px;
-    padding: 15px;
-    overflow-y: auto;
-    background: #f2f6ff;
-    box-shadow: inset 0 5px 10px rgba(0,0,0,0.05);
-    margin-bottom: 12px;
-    font-size: 15px;
-    min-height: 200px;
-    max-height: 300px;
-    display: flex;
-    flex-direction: column-reverse; /* هذا يجعل الرسائل الجديدة تظهر في الأعلى */
-}
+        /* ===== لوحة اللعبة ===== */
+        .game-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
 
-/* إصلاح لفتح الرسائل من الأعلى */
-.messages-content {
-    display: flex;
-    flex-direction: column;
-}
+        .game-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-.msg {
-    padding: 10px 15px;
-    border-radius: 15px;
-    margin-bottom: 10px;
-    word-wrap: break-word;
-    font-weight: bold;
-    animation: fadeIn 0.5s ease;
-    cursor: default;
-    transition: 0.3s;
-    position: relative;
-    align-self: flex-start;
-    max-width: 85%;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-}
+        .game-info h2 {
+            color: #4f46e5;
+            margin-bottom: 10px;
+        }
 
-.msg.user-msg {
-    align-self: flex-end;
-    background: linear-gradient(45deg, #3b5cff, #6a11cb);
-    color: white;
-}
+        .score-board {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
 
-.msg-username {
-    font-size: 0.8rem;
-    font-weight: bold;
-    margin-bottom: 3px;
-    display: flex;
-    justify-content: space-between;
-}
+        .score-item {
+            text-align: center;
+        }
 
-.msg-time {
-    font-size: 0.7rem;
-    font-weight: normal;
-    opacity: 0.8;
-}
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4f46e5;
+        }
 
-.msg-text {
-    font-size: 0.95rem;
-}
+        .score-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+        }
 
-@keyframes floatColor {
-    0% { filter: hue-rotate(0deg); }
-    50% { filter: hue-rotate(180deg); }
-    100% { filter: hue-rotate(360deg); }
-}
+        .cell {
+            aspect-ratio: 1;
+            background: white;
+            border: 3px solid #c7d2fe;
+            border-radius: 10px;
+            font-size: 3rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-/* ===== منطقة الإدخال ===== */
-.input-box {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
+        .cell:hover {
+            background: #e0e7ff;
+            transform: scale(1.05);
+        }
 
-.input-box input {
-    flex: 1;
-    padding: 12px 16px;
-    border-radius: 25px;
-    border: 2px solid #ddd;
-    outline: none;
-    font-size: 15px;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
-    transition: all 0.3s;
-    font-family: 'Cairo', sans-serif;
-}
+        .cell.x {
+            color: #ef4444;
+        }
 
-.input-box input:focus {
-    border-color: #3b5cff;
-    box-shadow: 0 0 0 3px rgba(59, 92, 255, 0.2);
-}
+        .cell.o {
+            color: #3b82f6;
+        }
 
-.input-box button {
-    padding: 12px 25px;
-    border-radius: 25px;
-    border: none;
-    background: linear-gradient(45deg, #3b5cff, #6a11cb);
-    color: white;
-    font-size: 15px;
-    cursor: pointer;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
-    font-family: 'Cairo', sans-serif;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
 
-.input-box button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.25);
-}
+        /* ===== لوحة الدردشة ===== */
+        .chat-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
 
-.input-box button:active {
-    transform: scale(0.98);
-}
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e7ff;
+        }
 
-/* ===== لعبة XO ===== */
-.game-section {
-    background: rgba(242, 246, 255, 0.7);
-    border-radius: 15px;
-    padding: 15px;
-    margin-top: 10px;
-}
+        .chat-header h2 {
+            color: #4f46e5;
+        }
 
-.game-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column-reverse;
+        }
 
-.current-turn {
-    font-weight: bold;
-    color: #3b5cff;
-    font-size: 1.1rem;
-    padding: 5px 15px;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-}
+        .message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
 
-#reset-game {
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s;
-}
+        .message.sent {
+            align-self: flex-end;
+            background: #4f46e5;
+            color: white;
+        }
 
-#reset-game:hover {
-    background: #ff5252;
-    transform: scale(1.05);
-}
+        .message.received {
+            align-self: flex-start;
+            background: #e0e7ff;
+            color: #333;
+        }
 
-#xo-board {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin: 0 auto;
-    width: fit-content;
-    background: white;
-    padding: 10px;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
+        .message.system {
+            align-self: center;
+            background: #f1f5f9;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+        }
 
-#xo-board button {
-    width: 70px;
-    height: 70px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 12px;
-    border: 2px solid #3b5cff;
-    background: #f8faff;
-    transition: 0.3s;
-    color: black; /* جعل الرموز سوداء */
-}
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
 
-#xo-board button.x {
-    color: #ff4444; /* يمكنك تغيير هذا إذا أردت لونًا مختلفًا لـ X */
-}
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e7ff;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
 
-#xo-board button.o {
-    color: #3b5cff; /* يمكنك تغيير هذا إذا أردت لونًا مختلفًا لـ O */
-}
+        .chat-input input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
 
-#xo-board button:hover {
-    background: #e1e7ff;
-    transform: scale(1.05);
-}
+        /* ===== المتصدرين ===== */
+        .leaderboard-section {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
 
-#xo-board button:disabled {
-    cursor: not-allowed;
-    opacity: 0.8;
-}
+        .leaderboard-section h2 {
+            color: #4f46e5;
+            margin-bottom: 20px;
+            text-align: center;
+        }
 
-/* ===== المتصدرين ===== */
-.leaderboard-container {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f2f6ff;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-}
+        .leaderboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
 
-.leaderboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
+        .leaderboard-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.leaderboard-header h3 {
-    margin: 0;
-    color: #3b5cff;
-}
+        .rank {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
 
-#refresh-leaderboard {
-    background: transparent;
-    border: none;
-    color: #3b5cff;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: all 0.3s;
-}
+        .rank-1 { background: gold; }
+        .rank-2 { background: silver; }
+        .rank-3 { background: #cd7f32; }
 
-#refresh-leaderboard:hover {
-    transform: rotate(180deg);
-}
+        /* ===== النوافذ المنبثقة ===== */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
 
-#leaderboard {
-    max-height: 150px;
-    overflow-y: auto;
-    padding-right: 10px;
-}
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
 
-#leaderboard::-webkit-scrollbar {
-    width: 6px;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-#leaderboard::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.05);
-    border-radius: 10px;
-}
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
 
-#leaderboard::-webkit-scrollbar-thumb {
-    background: #3b5cff;
-    border-radius: 10px;
-}
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-.lb-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    margin-bottom: 8px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
 
-.lb-rank {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: white;
-    font-size: 0.8rem;
-}
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e7ff;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
 
-.lb-rank.gold { background: gold; color: #333; }
-.lb-rank.silver { background: silver; }
-.lb-rank.bronze { background: #cd7f32; }
-.lb-rank.other { background: #6a11cb; }
+        /* ===== تحسينات عامة ===== */
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-.lb-name {
-    flex: 1;
-    margin: 0 15px;
-    font-weight: bold;
-}
+        .switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
 
-.lb-score {
-    font-weight: bold;
-    color: #3b5cff;
-}
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
 
-/* ===== تذييل الصفحة ===== */
-.footer {
-    text-align: center;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-    color: #666;
-    font-size: 0.8rem;
-}
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
 
-.footer a {
-    color: #3b5cff;
-    text-decoration: none;
-}
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
 
-.footer a:hover {
-    text-decoration: underline;
-}
+        input:checked + .slider {
+            background-color: #4f46e5;
+        }
 
-/* ===== رسالة الفائز ===== */
-.winner-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.5s;
-}
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
 
-.winner-overlay.show {
-    opacity: 1;
-    visibility: visible;
-}
+        /* ===== التكبير والتصغير ===== */
+        .zoom-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
 
-.winner-modal {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-    transform: scale(0.8);
-    transition: transform 0.5s;
-}
+        .zoom-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
 
-.winner-overlay.show .winner-modal {
-    transform: scale(1);
-}
+        /* ===== إشعارات ===== */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transform: translateX(-150%);
+            transition: transform 0.5s ease;
+        }
 
-.winner-icon {
-    font-size: 4rem;
-    margin-bottom: 20px;
-}
+        .notification.show {
+            transform: translateX(0);
+        }
 
-.winner-text {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #3b5cff;
-    margin-bottom: 15px;
-}
-
-.winner-desc {
-    color: #666;
-    margin-bottom: 20px;
-}
-
-/* ===== وسائط متجاوبة ===== */
-@media (max-width: 600px) {
-    .card {
-        padding: 20px;
-    }
-    
-    h1 {
-        font-size: 1.5rem;
-    }
-    
-    .messages {
-        min-height: 180px;
-        max-height: 250px;
-    }
-    
-    #xo-board button {
-        width: 60px;
-        height: 60px;
-        font-size: 24px;
-    }
-    
-    .input-box button span {
-        display: none;
-    }
-    
-    .input-box button {
-        padding: 12px 20px;
-    }
-}
-</style>
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4f46e5;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+    </style>
 </head>
 <body>
-<div class="card">
-    <h1><i class="fas fa-comments"></i> MiniChaat + <i class="fas fa-gamepad"></i> XO</h1>
-    
-    <!-- منطقة الدردشة -->
-    <div class="messages-container">
-        <div class="messages-header">
-            <span><i class="fas fa-comment-dots"></i> محادثة مباشرة</span>
-            <button id="clear-chat"><i class="fas fa-trash-alt"></i> مسح المحادثة</button>
-        </div>
-        <div class="messages" id="messages">
-            <div class="messages-content" id="messages-content"></div>
-        </div>
+    <!-- عناصر التكبير -->
+    <div class="zoom-controls">
+        <button class="zoom-btn" id="zoomIn"><i class="fas fa-search-plus"></i></button>
+        <button class="zoom-btn" id="zoomOut"><i class="fas fa-search-minus"></i></button>
+        <button class="zoom-btn" id="resetZoom"><i class="fas fa-undo"></i></button>
     </div>
-    
-    <!-- إرسال الرسائل -->
-    <div class="input-box">
-        <input id="text" placeholder="اكتب رسالتك هنا..." />
-        <button onclick="sendMessage()">
-            <i class="fas fa-paper-plane"></i>
-            <span>إرسال</span>
-        </button>
-    </div>
-    
-    <!-- لعبة XO -->
-    <div class="game-section">
-        <h2><i class="fas fa-chess-board"></i> لعبة XO</h2>
-        
-        <div class="game-header">
-            <div class="current-turn" id="current-turn">دور: <span id="turn-indicator">X</span></div>
-            <button id="reset-game"><i class="fas fa-redo"></i> إعادة اللعبة</button>
-        </div>
-        
-        <div id="xo-board">
-            <button data-pos="0"></button>
-            <button data-pos="1"></button>
-            <button data-pos="2"></button>
-            <button data-pos="3"></button>
-            <button data-pos="4"></button>
-            <button data-pos="5"></button>
-            <button data-pos="6"></button>
-            <button data-pos="7"></button>
-            <button data-pos="8"></button>
-        </div>
-    </div>
-    
-    <!-- المتصدرين -->
-    <div class="leaderboard-container">
-        <div class="leaderboard-header">
-            <h3><i class="fas fa-trophy"></i> المتصدرين</h3>
-            <button id="refresh-leaderboard" title="تحديث القائمة">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-        </div>
-        <div id="leaderboard">
-            <div class="lb-item">
-                <div class="lb-rank gold">1</div>
-                <div class="lb-name">جار التحميل...</div>
-                <div class="lb-score">0</div>
+
+    <!-- الحاوية الرئيسية -->
+    <div class="container">
+        <!-- الهيدر -->
+        <header>
+            <div class="logo">
+                <i class="fas fa-gamepad fa-2x"></i>
+                <h1>لعبة XO مع دردشة</h1>
             </div>
-        </div>
-    </div>
-    
-    <!-- تذييل الصفحة -->
-    <div class="footer">
-        تم التطوير باستخدام Firebase | MiniChaat + XO &copy; 2023
-    </div>
-</div>
-
-<!-- نافذة الفائز -->
-<div class="winner-overlay" id="winner-overlay">
-    <div class="winner-modal">
-        <div class="winner-icon" id="winner-icon">🏆</div>
-        <div class="winner-text" id="winner-text">!فاز X</div>
-        <div class="winner-desc" id="winner-desc">تهانينا! لقد فازت باللعبة</div>
-        <button id="close-winner" style="padding: 10px 25px; background: #3b5cff; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 1rem;">متابعة اللعب</button>
-    </div>
-</div>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<script>
-// ===== إعدادات Firebase =====
-const firebaseConfig = {
-    apiKey: "AIzaSyCRwY0eiSttQIVT7iBHgcHQQosSpEAA-LM",
-    authDomain: "minichaat-net.firebaseapp.com",
-    projectId: "minichaat-net",
-};
-
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// ===== المتغيرات العامة =====
-let username = "";
-let userColor = "#3b5cff";
-let isX = true; // إذا كان المستخدم يلعب بـ X
-
-// ===== تهيئة المستخدم =====
-function initUser() {
-    const savedUsername = localStorage.getItem("minichaat-username");
-    const savedColor = localStorage.getItem("minichaat-color");
-    
-    if (savedUsername) {
-        username = savedUsername;
-        userColor = savedColor || "#3b5cff";
-    } else {
-        username = prompt("مرحبًا! ما اسمك؟") || "زائر";
-        userColor = prompt("اختر لونك المفضل (اسم اللون أو HEX)") || "#3b5cff";
-        
-        // حفظ في التخزين المحلي
-        localStorage.setItem("minichaat-username", username);
-        localStorage.setItem("minichaat-color", userColor);
-    }
-    
-    // عرض ترحيب
-    addSystemMessage(`مرحبًا ${username}! يمكنك البدء بالدردشة واللعب.`);
-}
-
-// ===== الدردشة =====
-const messagesContent = document.getElementById('messages-content');
-const input = document.getElementById('text');
-
-// إرسال رسالة
-function sendMessage() {
-    const text = input.value.trim();
-    if (text === "") return;
-    
-    // إضافة الرسالة إلى Firebase
-    db.collection("messages").add({
-        name: username,
-        text: text,
-        color: userColor,
-        time: Date.now(),
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    input.value = "";
-    input.focus();
-}
-
-// تحويل HEX إلى RGB
-function hexToRgb(hex) {
-    let r = 0, g = 0, b = 0;
-    
-    if (hex.length === 4) {
-        r = "0x" + hex[1] + hex[1];
-        g = "0x" + hex[2] + hex[2];
-        b = "0x" + hex[3] + hex[3];
-    } else if (hex.length === 7) {
-        r = "0x" + hex[1] + hex[2];
-        g = "0x" + hex[3] + hex[4];
-        b = "0x" + hex[5] + hex[6];
-    }
-    
-    return [+r, +g, +b];
-}
-
-// حساب سطوع اللون
-function getColorBrightness(color) {
-    const rgb = hexToRgb(color);
-    return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
-}
-
-// إضافة رسالة نظام
-function addSystemMessage(text) {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'msg system-msg';
-    msgDiv.innerHTML = `
-        <div class="msg-username">
-            <span><i class="fas fa-info-circle"></i> نظام</span>
-        </div>
-        <div class="msg-text">${text}</div>
-    `;
-    msgDiv.style.background = "#f0f0f0";
-    msgDiv.style.color = "#666";
-    
-    // إضافة الرسالة في الأعلى
-    messagesContent.insertBefore(msgDiv, messagesContent.firstChild);
-    
-    // تحديد عدد الرسائل والاحتفاظ بـ 50 رسالة كحد أقصى
-    const allMessages = messagesContent.querySelectorAll('.msg');
-    if (allMessages.length > 50) {
-        messagesContent.removeChild(allMessages[allMessages.length - 1]);
-    }
-}
-
-// عرض الرسائل من Firebase
-db.collection("messages")
-    .orderBy("timestamp", "desc")
-    .limit(50)
-    .onSnapshot(snapshot => {
-        // مسح المحتوى الحالي
-        messagesContent.innerHTML = "";
-        
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const msgDiv = document.createElement('div');
-            
-            // تحديد إذا كانت الرسالة للمستخدم الحالي
-            const isCurrentUser = data.name === username;
-            msgDiv.className = `msg ${isCurrentUser ? 'user-msg' : ''}`;
-            
-            // تنسيق الوقت
-            const time = data.timestamp ? 
-                new Date(data.timestamp.toDate()).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}) : 
-                'الآن';
-            
-            msgDiv.innerHTML = `
-                <div class="msg-username">
-                    <span>${data.name}</span>
-                    <span class="msg-time">${time}</span>
+            <div class="user-controls">
+                <div class="theme-switch">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
                 </div>
-                <div class="msg-text">${data.text}</div>
-            `;
+                <button class="btn btn-primary" id="loginBtn">
+                    <i class="fas fa-user"></i>
+                    <span>تسجيل الدخول</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- المحتوى الرئيسي -->
+        <div class="main-content">
+            <!-- قسم اللعبة -->
+            <section class="game-section">
+                <div class="game-info">
+                    <h2>لعبة XO</h2>
+                    <p>اختر نوع اللعبة وابدأ اللعب</p>
+                </div>
+
+                <div class="score-board">
+                    <div class="score-item">
+                        <div class="score-value" id="wins">0</div>
+                        <div class="score-label">الفوز</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="losses">0</div>
+                        <div class="score-label">الخسارة</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="draws">0</div>
+                        <div class="score-label">التعادل</div>
+                    </div>
+                </div>
+
+                <div class="game-board" id="gameBoard">
+                    <!-- سيتم ملؤها بالجافاسكريبت -->
+                </div>
+
+                <div class="game-status" style="text-align: center; margin: 20px 0;">
+                    <h3 id="turnIndicator">دور: <span id="currentSymbol">X</span></h3>
+                    <p id="gameMessage">اضغط على زر البداية</p>
+                </div>
+
+                <div class="game-controls">
+                    <button class="btn btn-primary" id="startGame">
+                        <i class="fas fa-play"></i>
+                        <span>بدء اللعبة</span>
+                    </button>
+                    <button class="btn btn-primary" id="resetGame" disabled>
+                        <i class="fas fa-redo"></i>
+                        <span>إعادة</span>
+                    </button>
+                    <button class="btn btn-primary" id="changeMode">
+                        <i class="fas fa-cog"></i>
+                        <span>تغيير الوضع</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- قسم الدردشة -->
+            <section class="chat-section">
+                <div class="chat-header">
+                    <h2><i class="fas fa-comments"></i> الدردشة</h2>
+                    <button class="btn btn-primary" id="clearChat">
+                        <i class="fas fa-trash"></i>
+                        <span>مسح</span>
+                    </button>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message system">
+                        <p>مرحباً بك في الدردشة! يمكنك البدء بإرسال رسالة.</p>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا...">
+                    <button class="btn btn-primary" id="sendMessage">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- قسم المتصدرين -->
+            <section class="leaderboard-section">
+                <h2><i class="fas fa-trophy"></i> المتصدرين</h2>
+                <div class="leaderboard" id="leaderboard">
+                    <!-- سيتم ملؤها بالجافاسكريبت -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- نافذة تسجيل الدخول -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2 style="color: #4f46e5; margin-bottom: 20px; text-align: center;">تسجيل الدخول</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" class="form-control" id="username" placeholder="أدخل اسم المستخدم" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" class="form-control" id="password" placeholder="أدخل كلمة المرور" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="remember"> تذكرني
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 15px;">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>تسجيل الدخول</span>
+                </button>
+                <p style="text-align: center;">
+                    ليس لديك حساب؟ <a href="#" id="showRegister">سجل الآن</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة التسجيل -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <h2 style="color: #4f46e5; margin-bottom: 20px; text-align: center;">إنشاء حساب جديد</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" class="form-control" id="regUsername" placeholder="اختر اسم مستخدم فريد" required>
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" class="form-control" id="email" placeholder="أدخل بريدك الإلكتروني" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" class="form-control" id="regPassword" placeholder="اختر كلمة مرور قوية" required>
+                </div>
+                <div class="form-group">
+                    <label>تأكيد كلمة المرور</label>
+                    <input type="password" class="form-control" id="confirmPassword" placeholder="أعد كتابة كلمة المرور" required>
+                </div>
+                <div class="form-group">
+                    <label>اختر لونك المفضل</label>
+                    <input type="color" class="form-control" id="userColor" value="#4f46e5">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 15px;">
+                    <i class="fas fa-user-plus"></i>
+                    <span>إنشاء الحساب</span>
+                </button>
+                <p style="text-align: center;">
+                    لديك حساب بالفعل؟ <a href="#" id="showLogin">سجل الدخول</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- إشعارات -->
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div>
+            <div id="notificationTitle">مرحباً!</div>
+            <div id="notificationMessage">تم تحميل اللعبة بنجاح</div>
+        </div>
+    </div>
+
+    <script>
+        // ===== المتغيرات العامة =====
+        let currentUser = null;
+        let gameMode = 'ai'; // 'ai', 'local', 'online'
+        let currentTurn = 'X';
+        let gameActive = false;
+        let gameBoard = ['', '', '', '', '', '', '', '', ''];
+        let playerSymbol = 'X';
+        let userColor = '#4f46e5';
+        let theme = 'light';
+        let zoomLevel = 100;
+
+        // ===== تهيئة اللعبة =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initGame();
+            initEventListeners();
+            loadUserData();
+            showNotification('مرحباً بك!', 'يمكنك البدء باللعب الآن', 'info');
+        });
+
+        function initGame() {
+            createBoard();
+            updateLeaderboard();
+        }
+
+        function createBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
             
-            // تعيين لون الخلفية
-            msgDiv.style.background = data.color;
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => makeMove(i));
+                board.appendChild(cell);
+            }
+        }
+
+        // ===== استمعات الأحداث =====
+        function initEventListeners() {
+            // أزرار اللعبة
+            document.getElementById('startGame').addEventListener('click', startGame);
+            document.getElementById('resetGame').addEventListener('click', resetGame);
+            document.getElementById('changeMode').addEventListener('click', changeGameMode);
             
-            // تعيين لون النص بناءً على سطوع الخلفية
-            const brightness = getColorBrightness(data.color);
-            msgDiv.style.color = (brightness > 125) ? "#333" : "#fff";
+            // الدردشة
+            document.getElementById('sendMessage').addEventListener('click', sendMessage);
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+            document.getElementById('clearChat').addEventListener('click', clearChat);
             
-            // إضافة زر الحذف إذا كانت الرسالة للمستخدم الحالي
-            if (isCurrentUser) {
-                msgDiv.style.cursor = "pointer";
-                msgDiv.title = "انقر لحذف هذه الرسالة";
-                msgDiv.addEventListener("click", () => {
-                    if (confirm("هل تريد حذف هذه الرسالة؟")) {
-                        db.collection("messages").doc(doc.id).delete();
+            // تسجيل الدخول والتسجيل
+            document.getElementById('loginBtn').addEventListener('click', () => showModal('loginModal'));
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            document.getElementById('showRegister').addEventListener('click', (e) => {
+                e.preventDefault();
+                showModal('registerModal');
+                hideModal('loginModal');
+            });
+            document.getElementById('showLogin').addEventListener('click', (e) => {
+                e.preventDefault();
+                showModal('loginModal');
+                hideModal('registerModal');
+            });
+            
+            // الوضع الداكن/الفاتح
+            document.getElementById('themeToggle').addEventListener('change', toggleTheme);
+            
+            // التكبير والتصغير
+            document.getElementById('zoomIn').addEventListener('click', () => adjustZoom(10));
+            document.getElementById('zoomOut').addEventListener('click', () => adjustZoom(-10));
+            document.getElementById('resetZoom').addEventListener('click', resetZoom);
+            
+            // إغلاق النوافذ عند النقر خارجها
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
                     }
                 });
-            }
-            
-            // إضافة الرسالة إلى المحتوى
-            messagesContent.appendChild(msgDiv);
-        });
-        
-        // إذا لم تكن هناك رسائل، إضافة رسالة ترحيب
-        if (snapshot.empty) {
-            addSystemMessage("كن أول من يرسل رسالة!");
-        }
-    });
-
-// الاستماع لزر Enter
-input.addEventListener("keypress", e => {
-    if (e.key === "Enter") sendMessage();
-});
-
-// مسح المحادثة
-document.getElementById('clear-chat').addEventListener('click', () => {
-    if (confirm("هل تريد مسح كل الرسائل؟ لا يمكن التراجع عن هذا الإجراء.")) {
-        // حذف جميع رسائل المستخدم الحالي فقط
-        db.collection("messages").where("name", "==", username)
-            .get()
-            .then(snapshot => {
-                const batch = db.batch();
-                snapshot.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-                return batch.commit();
-            })
-            .then(() => {
-                addSystemMessage("تم حذف رسائلك.");
-            });
-    }
-});
-
-// ===== لعبة XO =====
-const xoBoard = document.getElementById("xo-board");
-const cells = xoBoard.querySelectorAll("button");
-const turnIndicator = document.getElementById("turn-indicator");
-const resetGameBtn = document.getElementById("reset-game");
-let turn = "X";
-let gameOver = false;
-
-// تحديث المؤشر
-function updateTurnIndicator() {
-    turnIndicator.textContent = turn;
-    turnIndicator.style.color = turn === "X" ? "#ff4444" : "#3b5cff";
-}
-
-// التحقق من الفائز
-function checkWinner(board) {
-    const combos = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8], // صفوف
-        [0, 3, 6], [1, 4, 7], [2, 5, 8], // أعمدة
-        [0, 4, 8], [2, 4, 6]             // أقطار
-    ];
-    
-    for (const combo of combos) {
-        if (board[combo[0]] && 
-            board[combo[0]] === board[combo[1]] && 
-            board[combo[0]] === board[combo[2]]) {
-            return board[combo[0]];
-        }
-    }
-    
-    // التحقق من التعادل
-    if (board.every(cell => cell !== "")) {
-        return "tie";
-    }
-    
-    return null;
-}
-
-// عرض نافذة الفائز
-function showWinner(winner) {
-    const overlay = document.getElementById("winner-overlay");
-    const winnerText = document.getElementById("winner-text");
-    const winnerDesc = document.getElementById("winner-desc");
-    const winnerIcon = document.getElementById("winner-icon");
-    
-    if (winner === "tie") {
-        winnerText.textContent = "!تعادل";
-        winnerDesc.textContent = "لا فائز هذه المرة، حاول مرة أخرى!";
-        winnerIcon.textContent = "🤝";
-    } else {
-        winnerText.textContent = `!فاز ${winner}`;
-        winnerDesc.textContent = winner === (isX ? "X" : "O") ? 
-            "تهانينا! لقد فازت باللعبة" : 
-            "حظ أوفر في المرة القادمة!";
-        winnerIcon.textContent = winner === (isX ? "X" : "O") ? "🏆" : "🎮";
-        
-        // تحديث النقاط إذا فاز المستخدم
-        if (winner === (isX ? "X" : "O")) {
-            const scoreDoc = db.collection("scores").doc(username);
-            scoreDoc.get().then(doc => {
-                if (doc.exists) {
-                    scoreDoc.update({score: firebase.firestore.FieldValue.increment(1)});
-                } else {
-                    scoreDoc.set({name: username, score: 1});
-                }
-                updateLeaderboard();
             });
         }
-    }
-    
-    overlay.classList.add("show");
-}
 
-// إعادة تعيين اللعبة
-function resetGame() {
-    cells.forEach(cell => {
-        cell.textContent = "";
-        cell.disabled = false;
-        cell.classList.remove("x", "o");
-        cell.style.transform = "scale(1)";
-    });
-    
-    turn = "X";
-    gameOver = false;
-    updateTurnIndicator();
-}
-
-// حدث النقر على خلية
-cells.forEach(cell => {
-    cell.addEventListener("click", () => {
-        if (gameOver || cell.textContent !== "") return;
-        
-        // تعيين الرمز
-        cell.textContent = turn;
-        cell.classList.add(turn.toLowerCase());
-        
-        // تأثير مرئي
-        cell.style.transform = "scale(1.1)";
-        setTimeout(() => cell.style.transform = "scale(1)", 150);
-        
-        // التحقق من الفائز
-        const board = Array.from(cells).map(c => c.textContent);
-        const winner = checkWinner(board);
-        
-        if (winner) {
-            gameOver = true;
-            cells.forEach(c => c.disabled = true);
-            
-            setTimeout(() => {
-                showWinner(winner);
-            }, 500);
-        } else {
-            // تغيير الدور
-            turn = turn === "X" ? "O" : "X";
-            updateTurnIndicator();
-        }
-    });
-});
-
-// إعادة تعيين اللعبة
-resetGameBtn.addEventListener("click", resetGame);
-
-// إغلاق نافذة الفائز
-document.getElementById("close-winner").addEventListener("click", () => {
-    document.getElementById("winner-overlay").classList.remove("show");
-    resetGame();
-});
-
-// ===== المتصدرين =====
-function updateLeaderboard() {
-    const leaderboard = document.getElementById("leaderboard");
-    
-    db.collection("scores")
-        .orderBy("score", "desc")
-        .limit(10)
-        .get()
-        .then(snapshot => {
-            leaderboard.innerHTML = "";
-            
-            if (snapshot.empty) {
-                leaderboard.innerHTML = '<div class="lb-item"><div class="lb-name" style="text-align:center; width:100%;">لا توجد نتائج بعد</div></div>';
+        // ===== نظام اللعبة =====
+        function startGame() {
+            if (!currentUser) {
+                showNotification('يجب تسجيل الدخول', 'سجل الدخول أولاً للعب', 'warning');
+                showModal('loginModal');
                 return;
             }
             
-            let rank = 0;
-            snapshot.forEach(doc => {
-                rank++;
-                const data = doc.data();
-                const lbItem = document.createElement("div");
-                lbItem.className = "lb-item";
+            gameActive = true;
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
+            currentTurn = 'X';
+            
+            // تحديث الواجهة
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o');
+                cell.style.pointerEvents = 'auto';
+            });
+            
+            document.getElementById('resetGame').disabled = false;
+            document.getElementById('startGame').disabled = true;
+            document.getElementById('gameMessage').textContent = 'ابدأ اللعب!';
+            document.getElementById('currentSymbol').textContent = currentTurn;
+            
+            if (gameMode === 'ai' && playerSymbol === 'O') {
+                setTimeout(computerMove, 500);
+            }
+            
+            showNotification('بدأت اللعبة!', 'حظاً طيباً', 'success');
+        }
+
+        function makeMove(index) {
+            if (!gameActive || gameBoard[index] !== '') return;
+            
+            // وضع الرمز
+            gameBoard[index] = currentTurn;
+            const cell = document.querySelector(`.cell[data-index="${index}"]`);
+            cell.textContent = currentTurn;
+            cell.classList.add(currentTurn.toLowerCase());
+            
+            // التحقق من الفائز
+            const winner = checkWinner();
+            if (winner) {
+                endGame(winner);
+                return;
+            }
+            
+            // التحقق من التعادل
+            if (gameBoard.every(cell => cell !== '')) {
+                endGame('draw');
+                return;
+            }
+            
+            // تبديل الدور
+            currentTurn = currentTurn === 'X' ? 'O' : 'X';
+            document.getElementById('currentSymbol').textContent = currentTurn;
+            
+            // إذا كان ضد الكمبيوتر
+            if (gameMode === 'ai' && currentTurn !== playerSymbol) {
+                setTimeout(computerMove, 500);
+            }
+            
+            playSound('click');
+        }
+
+        function computerMove() {
+            if (!gameActive) return;
+            
+            // خوارزمية الكمبيوتر
+            let availableMoves = [];
+            gameBoard.forEach((cell, index) => {
+                if (cell === '') availableMoves.push(index);
+            });
+            
+            if (availableMoves.length > 0) {
+                // اختر حركة عشوائية
+                const randomIndex = Math.floor(Math.random() * availableMoves.length);
+                makeMove(availableMoves[randomIndex]);
+            }
+        }
+
+        function checkWinner() {
+            const lines = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            
+            for (let line of lines) {
+                const [a, b, c] = line;
+                if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+                    return gameBoard[a];
+                }
+            }
+            return null;
+        }
+
+        function endGame(winner) {
+            gameActive = false;
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.style.pointerEvents = 'none';
+            });
+            
+            document.getElementById('startGame').disabled = false;
+            document.getElementById('gameMessage').textContent = winner === 'draw' ? 'تعادل!' : `فاز ${winner}!`;
+            
+            // تحديث الإحصائيات
+            if (currentUser) {
+                const stats = JSON.parse(localStorage.getItem(`user_${currentUser}_stats`)) || {wins: 0, losses: 0, draws: 0};
                 
-                // تحديد فئة الرتبة
-                let rankClass = "other";
-                if (rank === 1) rankClass = "gold";
-                else if (rank === 2) rankClass = "silver";
-                else if (rank === 3) rankClass = "bronze";
+                if (winner === 'draw') {
+                    stats.draws++;
+                    document.getElementById('draws').textContent = stats.draws;
+                    playSound('draw');
+                } else if (winner === playerSymbol) {
+                    stats.wins++;
+                    document.getElementById('wins').textContent = stats.wins;
+                    playSound('win');
+                    showConfetti();
+                } else {
+                    stats.losses++;
+                    document.getElementById('losses').textContent = stats.losses;
+                    playSound('lose');
+                }
                 
-                // تحديد إذا كان المستخدم الحالي
-                const isCurrentUser = data.name === username;
-                
-                lbItem.innerHTML = `
-                    <div class="lb-rank ${rankClass}">${rank}</div>
-                    <div class="lb-name" style="${isCurrentUser ? 'color:#3b5cff; font-weight:bold;' : ''}">
-                        ${isCurrentUser ? '<i class="fas fa-user" style="margin-left:5px;"></i>' : ''}
-                        ${data.name}
+                localStorage.setItem(`user_${currentUser}_stats`, JSON.stringify(stats));
+            }
+            
+            // تحديث المتصدرين
+            updateLeaderboard();
+        }
+
+        function resetGame() {
+            gameActive = false;
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o');
+                cell.style.pointerEvents = 'auto';
+            });
+            
+            document.getElementById('resetGame').disabled = true;
+            document.getElementById('startGame').disabled = false;
+            document.getElementById('gameMessage').textContent = 'اضغط على زر البداية';
+            document.getElementById('currentSymbol').textContent = 'X';
+            
+            playSound('reset');
+        }
+
+        function changeGameMode() {
+            const modes = ['ai', 'local', 'online'];
+            const modeNames = ['ضد الكمبيوتر', 'لاعبان محلياً', 'لاعب أونلاين'];
+            const currentIndex = modes.indexOf(gameMode);
+            const nextIndex = (currentIndex + 1) % modes.length;
+            
+            gameMode = modes[nextIndex];
+            playerSymbol = 'X'; // إعادة تعيين الرمز
+            
+            showNotification('تغيير الوضع', `تم التغيير إلى: ${modeNames[nextIndex]}`, 'info');
+        }
+
+        // ===== نظام الدردشة =====
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            
+            if (currentUser) {
+                messageDiv.className = 'message sent';
+                messageDiv.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 5px;">${currentUser}</div>
+                    <div>${message}</div>
+                    <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.7;">
+                        ${new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'})}
                     </div>
-                    <div class="lb-score">${data.score}</div>
+                `;
+            } else {
+                messageDiv.className = 'message system';
+                messageDiv.textContent = `زائر: ${message}`;
+            }
+            
+            chatMessages.insertBefore(messageDiv, chatMessages.firstChild);
+            input.value = '';
+            
+            // محاكاة رد
+            if (Math.random() > 0.5) {
+                setTimeout(() => {
+                    const replyDiv = document.createElement('div');
+                    replyDiv.className = 'message received';
+                    const replies = [
+                        'لعبة جميلة!',
+                        'حظاً طيباً',
+                        'أنا ألعب أيضاً',
+                        'يمكننا اللعب معاً',
+                        'تهانينا على الفوز'
+                    ];
+                    const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                    replyDiv.textContent = `لاعب: ${randomReply}`;
+                    chatMessages.insertBefore(replyDiv, chatMessages.firstChild);
+                }, 1000);
+            }
+        }
+
+        function clearChat() {
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="message system">
+                    <p>تم مسح الدردشة.</p>
+                </div>
+            `;
+        }
+
+        // ===== نظام تسجيل الدخول =====
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            
+            if (!username || !password) {
+                showNotification('خطأ', 'يرجى ملء جميع الحقول', 'error');
+                return;
+            }
+            
+            currentUser = username;
+            userColor = localStorage.getItem(`user_${username}_color`) || '#4f46e5';
+            
+            // حفظ بيانات المستخدم
+            if (remember) {
+                localStorage.setItem('currentUser', username);
+                localStorage.setItem('userColor', userColor);
+            }
+            
+            // تحميل الإحصائيات
+            loadUserData();
+            
+            hideModal('loginModal');
+            showNotification('مرحباً!', `تم تسجيل الدخول كـ ${username}`, 'success');
+            
+            // تحديث الواجهة
+            document.getElementById('loginBtn').innerHTML = `
+                <i class="fas fa-user"></i>
+                <span>${username}</span>
+            `;
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const color = document.getElementById('userColor').value;
+            
+            if (password !== confirmPassword) {
+                showNotification('خطأ', 'كلمات المرور غير متطابقة', 'error');
+                return;
+            }
+            
+            // حفظ بيانات المستخدم
+            localStorage.setItem(`user_${username}`, JSON.stringify({
+                username,
+                email,
+                password,
+                color,
+                created: new Date().toISOString()
+            }));
+            
+            currentUser = username;
+            userColor = color;
+            
+            hideModal('registerModal');
+            showNotification('تهانينا!', 'تم إنشاء حسابك بنجاح', 'success');
+            
+            // تحديث الواجهة
+            document.getElementById('loginBtn').innerHTML = `
+                <i class="fas fa-user"></i>
+                <span>${username}</span>
+            `;
+        }
+
+        function loadUserData() {
+            if (localStorage.getItem('currentUser')) {
+                currentUser = localStorage.getItem('currentUser');
+                userColor = localStorage.getItem('userColor') || '#4f46e5';
+                
+                document.getElementById('loginBtn').innerHTML = `
+                    <i class="fas fa-user"></i>
+                    <span>${currentUser}</span>
                 `;
                 
-                leaderboard.appendChild(lbItem);
+                // تحميل الإحصائيات
+                const stats = JSON.parse(localStorage.getItem(`user_${currentUser}_stats`)) || {wins: 0, losses: 0, draws: 0};
+                document.getElementById('wins').textContent = stats.wins;
+                document.getElementById('losses').textContent = stats.losses;
+                document.getElementById('draws').textContent = stats.draws;
+            }
+        }
+
+        // ===== المتصدرين =====
+        function updateLeaderboard() {
+            const leaderboard = document.getElementById('leaderboard');
+            leaderboard.innerHTML = '';
+            
+            // بيانات افتراضية للمتصدرين
+            const players = [
+                {name: 'أحمد', score: 1500, wins: 15},
+                {name: 'سارة', score: 1200, wins: 12},
+                {name: 'محمد', score: 1000, wins: 10},
+                {name: 'فاطمة', score: 800, wins: 8},
+                {name: 'خالد', score: 600, wins: 6}
+            ];
+            
+            players.forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                item.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="rank rank-${index + 1}">${index + 1}</div>
+                        <div>
+                            <div style="font-weight: bold;">${player.name}</div>
+                            <div style="font-size: 0.9rem; color: #666;">${player.wins} فوز</div>
+                        </div>
+                    </div>
+                    <div style="font-weight: bold; color: #4f46e5;">${player.score}</div>
+                `;
+                leaderboard.appendChild(item);
             });
-        })
-        .catch(error => {
-            console.error("Error updating leaderboard:", error);
-            leaderboard.innerHTML = '<div class="lb-item"><div class="lb-name" style="text-align:center; width:100%;">خطأ في تحميل النتائج</div></div>';
-        });
-}
+        }
 
-// تحديث المتصدرين
-document.getElementById("refresh-leaderboard").addEventListener("click", updateLeaderboard);
+        // ===== ميزات إضافية =====
+        function toggleTheme() {
+            theme = document.getElementById('themeToggle').checked ? 'dark' : 'light';
+            
+            if (theme === 'dark') {
+                document.body.style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+                document.documentElement.style.setProperty('--primary-color', '#8b5cf6');
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                document.documentElement.style.setProperty('--primary-color', '#4f46e5');
+            }
+            
+            localStorage.setItem('theme', theme);
+        }
 
-// ===== تهيئة الصفحة =====
-document.addEventListener("DOMContentLoaded", () => {
-    initUser();
-    updateTurnIndicator();
-    updateLeaderboard();
-    
-    // تحديث المتصدرين كل 30 ثانية
-    setInterval(updateLeaderboard, 30000);
-});
-</script>
+        function adjustZoom(amount) {
+            zoomLevel = Math.max(50, Math.min(200, zoomLevel + amount));
+            document.documentElement.style.fontSize = `${zoomLevel}%`;
+            showNotification('التكبير', `مستوى التكبير: ${zoomLevel}%`, 'info');
+        }
+
+        function resetZoom() {
+            zoomLevel = 100;
+            document.documentElement.style.fontSize = '100%';
+            showNotification('إعادة الضبط', 'تم إعادة ضبط التكبير', 'info');
+        }
+
+        // ===== وظائف مساعدة =====
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showNotification(title, message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const icon = notification.querySelector('.notification-icon i');
+            
+            document.getElementById('notificationTitle').textContent = title;
+            document.getElementById('notificationMessage').textContent = message;
+            
+            // تغيير اللون حسب النوع
+            const colors = {
+                'info': '#4f46e5',
+                'success': '#10b981',
+                'warning': '#f59e0b',
+                'error': '#ef4444'
+            };
+            
+            notification.querySelector('.notification-icon').style.background = colors[type] || colors.info;
+            
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function playSound(type) {
+            // محاكاة الأصوات باستخدام Web Audio API
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                switch(type) {
+                    case 'click':
+                        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                        break;
+                    case 'win':
+                        oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+                        break;
+                    case 'lose':
+                        oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                        break;
+                    case 'draw':
+                        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                        break;
+                    case 'reset':
+                        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                        break;
+                }
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                // في حالة فشل Web Audio API
+                console.log('Sound effect:', type);
+            }
+        }
+
+        function showConfetti() {
+            // تأثير الفوز باستخدام CSS
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.background = ['#4f46e5', '#ef4444', '#10b981', '#f59e0b'][Math.floor(Math.random() * 4)];
+                confetti.style.borderRadius = '50%';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.zIndex = '9999';
+                document.body.appendChild(confetti);
+                
+                // تحريك الكونفيتي
+                confetti.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: 1000 + Math.random() * 2000,
+                    easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
+                });
+                
+                // إزالة الكونفيتي بعد انتهاء الأنيميشن
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        // تحميل الإعدادات المحفوظة
+        function loadSettings() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.getElementById('themeToggle').checked = true;
+                toggleTheme();
+            }
+        }
+
+        // تحميل الإعدادات عند البدء
+        loadSettings();
+    </script>
 </body>
 </html>
