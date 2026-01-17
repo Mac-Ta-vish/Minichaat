@@ -1,0 +1,2318 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 ألعاب أونلاين | XO - الدودة - التفاح</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 🎨 ألوان الأكواد للنسخ */
+        .code-block { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 10px; font-family: 'Courier New', monospace; overflow-x: auto; margin: 20px 0; }
+        .code-block .line-number { color: #858585; margin-right: 10px; user-select: none; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        .code-block .comment { color: #6a9955; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        
+        /* 🎨 متغيرات التصميم */
+        :root {
+            --primary: #6d28d9;
+            --secondary: #7c3aed;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --gray: #6b7280;
+            --shadow: 0 10px 25px rgba(0,0,0,0.1);
+            --radius: 15px;
+            --transition: all 0.3s ease;
+        }
+
+        /* 🎨 التصميم العام */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark), #111827);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 🎨 الحاوية الرئيسية */
+        .game-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1100px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 🎨 الشريط الجانبي */
+        .sidebar {
+            background: rgba(31, 41, 55, 0.9);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .user-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f59e0b, #ef4444);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .user-info h3 {
+            margin-bottom: 5px;
+            font-size: 1.3rem;
+        }
+
+        .user-status {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* 🎨 قائمة الألعاب */
+        .games-list {
+            margin-top: 25px;
+        }
+
+        .game-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .game-option:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .game-option.active {
+            background: var(--primary);
+        }
+
+        .game-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* 🎨 منطقة اللعبة الرئيسية */
+        .game-area {
+            background: rgba(31, 41, 55, 0.9);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* 🎨 لوحة اللعبة */
+        .game-board {
+            background: rgba(0,0,0,0.3);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 🎨 XO Board */
+        .xo-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .xo-cell {
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.1);
+            border: 3px solid var(--primary);
+            border-radius: 10px;
+            font-size: 4rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .xo-cell:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+
+        .xo-cell.x { color: #ef4444; }
+        .xo-cell.o { color: #3b82f6; }
+
+        /* 🎨 لعبة الدودة */
+        .snake-board {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            background: rgba(0,0,0,0.5);
+            border: 3px solid var(--primary);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .snake-cell {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--success);
+            border-radius: 3px;
+        }
+
+        .snake-head {
+            background: #10b981;
+            border-radius: 5px;
+        }
+
+        .snake-food {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* 🎨 لعبة التفاح */
+        .apple-game {
+            width: 600px;
+            height: 400px;
+            background: rgba(0,0,0,0.5);
+            border: 3px solid var(--primary);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .apple {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ef4444, #f59e0b);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .apple:hover {
+            transform: scale(1.2);
+        }
+
+        /* 🎨 التحكم باللعبة */
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(109, 40, 217, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* 🎨 منطقة الدردشة */
+        .chat-section {
+            background: rgba(31, 41, 55, 0.9);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .chat-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .chat-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .chat-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .chat-window {
+            height: 300px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.own {
+            align-self: flex-end;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .message.other {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.1);
+            color: var(--light);
+        }
+
+        .message.system {
+            align-self: center;
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent);
+            font-style: italic;
+            text-align: center;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            border-radius: 25px;
+            font-size: 1rem;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* 🎨 الغرف المتاحة */
+        .rooms-section {
+            background: rgba(31, 41, 55, 0.9);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .room-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .room-card:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .room-card.active {
+            border-color: var(--primary);
+            background: rgba(109, 40, 217, 0.2);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .room-players {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--gray);
+        }
+
+        /* 🎨 متابعة اللاعبين */
+        .players-online {
+            margin-top: 25px;
+        }
+
+        .players-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .player-tag {
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .player-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .online { background: var(--success); }
+        .ingame { background: var(--accent); }
+        .offline { background: var(--gray); }
+
+        /* 🎨 الإشعارات */
+        .notification-center {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .notification {
+            background: linear-gradient(45deg, var(--dark), #374151);
+            border-left: 4px solid var(--primary);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+            animation: slideRight 0.5s ease;
+            max-width: 350px;
+        }
+
+        @keyframes slideRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* 🎨 المتصدرين */
+        .leaderboard {
+            margin-top: 25px;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .leaderboard-row {
+            display: grid;
+            grid-template-columns: 50px 2fr 1fr 1fr;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .leaderboard-row:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .rank {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .rank-1 { background: linear-gradient(45deg, #FFD700, #FFA500); }
+        .rank-2 { background: linear-gradient(45deg, #C0C0C0, #A9A9A9); }
+        .rank-3 { background: linear-gradient(45deg, #CD7F32, #8B4513); }
+
+        /* 🎨 مستعرض الأكواد */
+        .code-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            display: none;
+            overflow-y: auto;
+        }
+
+        .code-viewer.active {
+            display: block;
+        }
+
+        .code-header {
+            padding: 20px;
+            background: var(--dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-content {
+            padding: 20px;
+        }
+
+        /* 🎨 التحكم بالصوت */
+        .sound-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* 🎨 وسائط متجاوبة */
+        @media (max-width: 768px) {
+            .xo-cell { width: 80px; height: 80px; font-size: 3rem; }
+            .snake-board, .apple-game { width: 100%; height: 300px; }
+            .game-controls { flex-wrap: wrap; }
+            .rooms-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 🎨 مركز الإشعارات -->
+    <div class="notification-center" id="notificationCenter"></div>
+
+    <!-- 🎨 التحكم بالصوت -->
+    <div class="sound-controls">
+        <button class="btn btn-primary" id="toggleSound">
+            <i class="fas fa-volume-up"></i>
+        </button>
+        <button class="btn btn-primary" id="toggleMusic">
+            <i class="fas fa-music"></i>
+        </button>
+    </div>
+
+    <!-- 🎨 الحاوية الرئيسية -->
+    <div class="game-container">
+        <!-- الشريط الجانبي -->
+        <div class="sidebar">
+            <!-- بطاقة المستخدم -->
+            <div class="user-card" id="userCard">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <div class="user-info">
+                    <h3 id="userName">زائر</h3>
+                    <div class="user-status" id="userStatus">غير متصل</div>
+                </div>
+                <div class="user-stats" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: bold;" id="userScore">0</div>
+                        <div style="font-size: 0.8rem;">النقاط</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: bold;" id="userWins">0</div>
+                        <div style="font-size: 0.8rem;">الفوز</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قائمة الألعاب -->
+            <div class="games-list">
+                <h3 style="margin-bottom: 15px; color: var(--accent);">
+                    <i class="fas fa-gamepad"></i> الألعاب المتاحة
+                </h3>
+                <div class="game-option active" data-game="xo">
+                    <div class="game-icon" style="background: linear-gradient(45deg, #ef4444, #3b82f6);">
+                        XO
+                    </div>
+                    <div>
+                        <div style="font-weight: bold;">لعبة XO</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">شخصان أونلاين</div>
+                    </div>
+                </div>
+                <div class="game-option" data-game="snake">
+                    <div class="game-icon" style="background: linear-gradient(45deg, #10b981, #059669);">
+                        🐍
+                    </div>
+                    <div>
+                        <div style="font-weight: bold;">لعبة الدودة</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">تحدي السرعة</div>
+                    </div>
+                </div>
+                <div class="game-option" data-game="apple">
+                    <div class="game-icon" style="background: linear-gradient(45deg, #f59e0b, #d97706);">
+                        🍎
+                    </div>
+                    <div>
+                        <div style="font-weight: bold;">التفاح السريع</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">سرعة رد الفعل</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الغرف المتاحة -->
+            <div class="rooms-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="color: var(--accent);">
+                        <i class="fas fa-door-open"></i> الغرف النشطة
+                    </h3>
+                    <button class="btn btn-primary" id="createRoomBtn">
+                        <i class="fas fa-plus"></i> جديد
+                    </button>
+                </div>
+                <div class="rooms-grid" id="roomsGrid">
+                    <!-- سيتم ملؤها بالجافاسكريبت -->
+                </div>
+            </div>
+
+            <!-- اللاعبون المتصلون -->
+            <div class="players-online">
+                <h3 style="color: var(--accent); margin-bottom: 10px;">
+                    <i class="fas fa-users"></i> اللاعبون المتصلون
+                </h3>
+                <div class="players-list" id="playersList">
+                    <!-- سيتم ملؤها بالجافاسكريبت -->
+                </div>
+            </div>
+
+            <!-- المتصدرين -->
+            <div class="leaderboard">
+                <h3 style="color: var(--accent); margin-bottom: 10px;">
+                    <i class="fas fa-trophy"></i> المتصدرين
+                </h3>
+                <div class="leaderboard-table">
+                    <div class="leaderboard-row" style="background: rgba(255,255,255,0.1); font-weight: bold;">
+                        <div>#</div>
+                        <div>اللاعب</div>
+                        <div>النقاط</div>
+                        <div>الفوز</div>
+                    </div>
+                    <div id="leaderboardContent">
+                        <!-- سيتم ملؤها بالجافاسكريبت -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- منطقة اللعبة الرئيسية -->
+        <div class="game-area">
+            <!-- معلومات اللعبة -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 id="currentGameTitle">لعبة XO</h1>
+                <div class="game-info" style="display: flex; align-items: center; gap: 20px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.9rem; opacity: 0.8;">الدور</div>
+                        <div id="currentTurn" style="font-size: 1.5rem; font-weight: bold; color: var(--accent);">X</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.9rem; opacity: 0.8;">الوقت</div>
+                        <div id="gameTimer" style="font-size: 1.5rem; font-weight: bold;">00:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- لوحة اللعبة -->
+            <div class="game-board">
+                <!-- لعبة XO -->
+                <div id="xoGame" class="game-content active">
+                    <div class="xo-board" id="xoBoard">
+                        <!-- سيتم ملؤها بالجافاسكريبت -->
+                    </div>
+                </div>
+
+                <!-- لعبة الدودة -->
+                <div id="snakeGame" class="game-content" style="display: none;">
+                    <div class="snake-board" id="snakeBoard"></div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <div style="font-size: 1.2rem; margin-bottom: 10px;">
+                            النقاط: <span id="snakeScore">0</span>
+                        </div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">
+                            استخدم الأسهم للتحكم
+                        </div>
+                    </div>
+                </div>
+
+                <!-- لعبة التفاح -->
+                <div id="appleGame" class="game-content" style="display: none;">
+                    <div class="apple-game" id="appleBoard"></div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <div style="font-size: 1.2rem; margin-bottom: 10px;">
+                            النقاط: <span id="appleScore">0</span> | الوقت: <span id="appleTime">30</span>
+                        </div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">
+                            اضغط على التفاح بسرعة!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- خيارات اللعبة -->
+            <div class="game-controls">
+                <button class="btn btn-primary" id="startGameBtn">
+                    <i class="fas fa-play"></i> ابدأ اللعبة
+                </button>
+                <button class="btn btn-primary" id="restartGameBtn" disabled>
+                    <i class="fas fa-redo"></i> إعادة
+                </button>
+                <button class="btn btn-success" id="inviteFriendBtn">
+                    <i class="fas fa-user-plus"></i> دعوة صديق
+                </button>
+                <button class="btn btn-danger" id="leaveGameBtn" disabled>
+                    <i class="fas fa-sign-out-alt"></i> مغادرة
+                </button>
+            </div>
+
+            <!-- منطقة الدردشة -->
+            <div class="chat-section">
+                <div class="chat-tabs">
+                    <button class="chat-tab active" data-chat="public">
+                        <i class="fas fa-globe"></i> عامة
+                    </button>
+                    <button class="chat-tab" data-chat="private">
+                        <i class="fas fa-lock"></i> خاصة
+                    </button>
+                    <button class="chat-tab" data-chat="room">
+                        <i class="fas fa-door-closed"></i> الغرفة
+                    </button>
+                </div>
+                <div class="chat-window" id="chatWindow"></div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا...">
+                    <button class="btn btn-primary" id="sendMessageBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎨 نافذة تسجيل الدخول -->
+    <div class="modal" id="loginModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 3000;">
+        <div style="background: var(--dark); padding: 40px; border-radius: 20px; max-width: 500px; width: 90%;">
+            <h2 style="text-align: center; margin-bottom: 30px; color: var(--accent);">
+                <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+            </h2>
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="loginUsername" placeholder="اسم المستخدم" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.1); border: 2px solid var(--primary); border-radius: 10px; color: white; font-size: 1rem; margin-bottom: 15px;">
+                <input type="password" id="loginPassword" placeholder="كلمة المرور" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.1); border: 2px solid var(--primary); border-radius: 10px; color: white; font-size: 1rem;">
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" id="loginSubmitBtn">
+                <i class="fas fa-sign-in-alt"></i> دخول
+            </button>
+            <p style="text-align: center; margin-top: 20px; opacity: 0.8;">
+                ليس لديك حساب؟ <a href="#" id="showRegister" style="color: var(--accent);">سجل الآن</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- 🎨 مستعرض الأكواد -->
+    <div class="code-viewer" id="codeViewer">
+        <div class="code-header">
+            <h3>🎮 كود الخادم - Server Code</h3>
+            <button class="btn btn-danger" id="closeCodeViewer">
+                <i class="fas fa-times"></i> إغلاق
+            </button>
+        </div>
+        <div class="code-content">
+            <h4 style="margin: 20px 0; color: var(--accent);">📦 خادم Node.js مع Socket.io</h4>
+            <div class="code-block" id="serverCode">
+<span class="line-number">1</span> <span class="comment">// server.js - خادم الألعاب المتعدد اللاعبين</span>
+<span class="line-number">2</span> <span class="keyword">const</span> express = <span class="function">require</span>(<span class="string">'express'</span>);
+<span class="line-number">3</span> <span class="keyword">const</span> http = <span class="function">require</span>(<span class="string">'http'</span>);
+<span class="line-number">4</span> <span class="keyword">const</span> socketio = <span class="function">require</span>(<span class="string">'socket.io'</span>);
+<span class="line-number">5</span> <span class="keyword">const</span> mongoose = <span class="function">require</span>(<span class="string">'mongoose'</span>);
+<span class="line-number">6</span>
+<span class="line-number">7</span> <span class="keyword">const</span> app = express();
+<span class="line-number">8</span> <span class="keyword">const</span> server = http.<span class="function">createServer</span>(app);
+<span class="line-number">9</span> <span class="keyword">const</span> io = <span class="function">socketio</span>(server);
+<span class="line-number">10</span>
+<span class="line-number">11</span> <span class="comment">// الاتصال بقاعدة البيانات MongoDB</span>
+<span class="line-number">12</span> mongoose.<span class="function">connect</span>(<span class="string">'mongodb://localhost:27017/gameserver'</span>, {
+<span class="line-number">13</span>     <span class="keyword">useNewUrlParser</span>: <span class="keyword">true</span>,
+<span class="line-number">14</span>     <span class="keyword">useUnifiedTopology</span>: <span class="keyword">true</span>
+<span class="line-number">15</span> });
+<span class="line-number">16</span>
+<span class="line-number">17</span> <span class="comment">// نماذج البيانات</span>
+<span class="line-number">18</span> <span class="keyword">const</span> User = mongoose.<span class="function">model</span>(<span class="string">'User'</span>, <span class="keyword">new</span> mongoose.<span class="function">Schema</span>({
+<span class="line-number">19</span>     <span class="keyword">username</span>: String,
+<span class="line-number">20</span>     <span class="keyword">password</span>: String,
+<span class="line-number">21</span>     <span class="keyword">score</span>: { <span class="keyword">type</span>: Number, <span class="keyword">default</span>: <span class="number">0</span> },
+<span class="line-number">22</span>     <span class="keyword">wins</span>: { <span class="keyword">type</span>: Number, <span class="keyword">default</span>: <span class="number">0</span> },
+<span class="line-number">23</span>     <span class="keyword">createdAt</span>: { <span class="keyword">type</span>: Date, <span class="keyword">default</span>: Date.now }
+<span class="line-number">24</span> }));
+<span class="line-number">25</span>
+<span class="line-number">26</span> <span class="keyword">const</span> GameRoom = mongoose.<span class="function">model</span>(<span class="string">'GameRoom'</span>, <span class="keyword">new</span> mongoose.<span class="function">Schema</span>({
+<span class="line-number">27</span>     <span class="keyword">name</span>: String,
+<span class="line-number">28</span>     <span class="keyword">gameType</span>: String, <span class="comment">// 'xo', 'snake', 'apple'</span>
+<span class="line-number">29</span>     <span class="keyword">players</span>: [String], <span class="comment">// player usernames</span>
+<span class="line-number">30</span>     <span class="keyword">maxPlayers</span>: Number,
+<span class="line-number">31</span>     <span class="keyword">isPrivate</span>: Boolean,
+<span class="line-number">32</span>     <span class="keyword">password</span>: String,
+<span class="line-number">33</span>     <span class="keyword">createdAt</span>: { <span class="keyword">type</span>: Date, <span class="keyword">default</span>: Date.now }
+<span class="line-number">34</span> }));
+<span class="line-number">35</span>
+<span class="line-number">36</span> <span class="keyword">const</span> Message = mongoose.<span class="function">model</span>(<span class="string">'Message'</span>, <span class="keyword">new</span> mongoose.<span class="function">Schema</span>({
+<span class="line-number">37</span>     <span class="keyword">sender</span>: String,
+<span class="line-number">38</span>     <span class="keyword">receiver</span>: String,
+<span class="line-number">39</span>     <span class="keyword">message</span>: String,
+<span class="line-number">40</span>     <span class="keyword">room</span>: String,
+<span class="line-number">41</span>     <span class="keyword">type</span>: String, <span class="comment">// 'public', 'private', 'room'</span>
+<span class="line-number">42</span>     <span class="keyword">timestamp</span>: { <span class="keyword">type</span>: Date, <span class="keyword">default</span>: Date.now }
+<span class="line-number">43</span> }));
+<span class="line-number">44</span>
+<span class="line-number">45</span> <span class="comment">// تخزين المستخدمين المتصلين</span>
+<span class="line-number">46</span> <span class="keyword">let</span> connectedUsers = <span class="keyword">new</span> Map();
+<span class="line-number">47</span> <span class="keyword">let</span> activeGames = <span class="keyword">new</span> Map();
+<span class="line-number">48</span>
+<span class="line-number">49</span> io.<span class="function">on</span>(<span class="string">'connection'</span>, (socket) => {
+<span class="line-number">50</span>     <span class="console">console</span>.<span class="function">log</span>(<span class="string">'مستخدم متصل:'</span>, socket.id);
+<span class="line-number">51</span>
+<span class="line-number">52</span>     <span class="comment">// تسجيل الدخول</span>
+<span class="line-number">53</span>     socket.<span class="function">on</span>(<span class="string">'login'</span>, async (data) => {
+<span class="line-number">54</span>         <span class="keyword">const</span> { username, password } = data;
+<span class="line-number">55</span>         <span class="keyword">let</span> user = await User.<span class="function">findOne</span>({ username });
+<span class="line-number">56</span>         
+<span class="line-number">57</span>         <span class="keyword">if</span> (!user) {
+<span class="line-number">58</span>             <span class="comment">// إنشاء مستخدم جديد</span>
+<span class="line-number">59</span>             user = <span class="keyword">new</span> User({ username, password });
+<span class="line-number">60</span>             await user.<span class="function">save</span>();
+<span class="line-number">61</span>         } <span class="keyword">else</span> <span class="keyword">if</span> (user.password !== password) {
+<span class="line-number">62</span>             socket.<span class="function">emit</span>(<span class="string">'login_error'</span>, { message: 'كلمة المرور خاطئة' });
+<span class="line-number">63</span>             <span class="keyword">return</span>;
+<span class="line-number">64</span>         }
+<span class="line-number">65</span>         
+<span class="line-number">66</span>         connectedUsers.<span class="function">set</span>(socket.id, {
+<span class="line-number">67</span>             id: socket.id,
+<span class="line-number">68</span>             username,
+<span class="line-number">69</span>             socket,
+<span class="line-number">70</span>             room: null,
+<span class="line-number">71</span>             game: null
+<span class="line-number">72</span>         });
+<span class="line-number">73</span>         
+<span class="line-number">74</span>         socket.<span class="function">emit</span>(<span class="string">'login_success'</span>, {
+<span class="line-number">75</span>             username,
+<span class="line-number">76</span>             score: user.score,
+<span class="line-number">77</span>             wins: user.wins
+<span class="line-number">78</span>         });
+<span class="line-number">79</span>         
+<span class="line-number">80</span>         <span class="comment">// إعلام جميع المستخدمين</span>
+<span class="line-number">81</span>         io.<span class="function">emit</span>(<span class="string">'user_connected'</span>, {
+<span class="line-number">82</span>             username,
+<span class="line-number">83</span>             id: socket.id
+<span class="line-number">84</span>         });
+<span class="line-number">85</span>     });
+<span class="line-number">86</span>
+<span class="line-number">87</span>     <span class="comment">// إنشاء غرفة جديدة</span>
+<span class="line-number">88</span>     socket.<span class="function">on</span>(<span class="string">'create_room'</span>, async (data) => {
+<span class="line-number">89</span>         <span class="keyword">const</span> user = connectedUsers.<span class="function">get</span>(socket.id);
+<span class="line-number">90</span>         <span class="keyword">if</span> (!user) <span class="keyword">return</span>;
+<span class="line-number">91</span>         
+<span class="line-number">92</span>         <span class="keyword">const</span> room = <span class="keyword">new</span> GameRoom({
+<span class="line-number">93</span>             name: data.name,
+<span class="line-number">94</span>             gameType: data.gameType,
+<span class="line-number">95</span>             players: [user.username],
+<span class="line-number">96</span>             maxPlayers: data.maxPlayers || <span class="number">2</span>,
+<span class="line-number">97</span>             isPrivate: data.isPrivate || <span class="keyword">false</span>,
+<span class="line-number">98</span>             password: data.password || ''
+<span class="line-number">99</span>         });
+<span class="line-number">100</span>        
+<span class="line-number">101</span>        await room.<span class="function">save</span>();
+<span class="line-number">102</span>        user.room = room._id;
+<span class="line-number">103</span>        socket.<span class="function">join</span>(room._id.toString());
+<span class="line-number">104</span>        
+<span class="line-number">105</span>        io.<span class="function">emit</span>(<span class="string">'room_created'</span>, {
+<span class="line-number">106</span>            id: room._id,
+<span class="line-number">107</span>            name: room.name,
+<span class="line-number">108</span>            gameType: room.gameType,
+<span class="line-number">109</span>            players: room.players,
+<span class="line-number">110</span>            maxPlayers: room.maxPlayers
+<span class="line-number">111</span>        });
+<span class="line-number">112</span>    });
+<span class="line-number">113</span>
+<span class="line-number">114</span>    <span class="comment">// الانضمام إلى غرفة</span>
+<span class="line-number">115</span>    socket.<span class="function">on</span>(<span class="string">'join_room'</span>, async (data) => {
+<span class="line-number">116</span>        <span class="keyword">const</span> user = connectedUsers.<span class="function">get</span>(socket.id);
+<span class="line-number">117</span>        <span class="keyword">if</span> (!user) <span class="keyword">return</span>;
+<span class="line-number">118</span>        
+<span class="line-number">119</span>        <span class="keyword">const</span> room = await GameRoom.<span class="function">findById</span>(data.roomId);
+<span class="line-number">120</span>        <span class="keyword">if</span> (!room || room.players.length >= room.maxPlayers) <span class="keyword">return</span>;
+<span class="line-number">121</span>        
+<span class="line-number">122</span>        <span class="keyword">if</span> (room.isPrivate && room.password !== data.password) {
+<span class="line-number">123</span>            socket.<span class="function">emit</span>(<span class="string">'room_error'</span>, { message: 'كلمة المرور خاطئة' });
+<span class="line-number">124</span>            <span class="keyword">return</span>;
+<span class="line-number">125</span>        }
+<span class="line-number">126</span>        
+<span class="line-number">127</span>        room.players.<span class="function">push</span>(user.username);
+<span class="line-number">128</span>        await room.<span class="function">save</span>();
+<span class="line-number">129</span>        user.room = room._id;
+<span class="line-number">130</span>        socket.<span class="function">join</span>(room._id.toString());
+<span class="line-number">131</span>        
+<span class="line-number">132</span>        io.<span class="function">to</span>(room._id.toString()).<span class="function">emit</span>(<span class="string">'player_joined'</span>, {
+<span class="line-number">133</span>            roomId: room._id,
+<span class="line-number">134</span>            player: user.username,
+<span class="line-number">135</span>            players: room.players
+<span class="line-number">136</span>        });
+<span class="line-number">137</span>    });
+<span class="line-number">138</span>
+<span class="line-number">139</span>    <span class="comment">// إرسال رسالة</span>
+<span class="line-number">140</span>    socket.<span class="function">on</span>(<span class="string">'send_message'</span>, async (data) => {
+<span class="line-number">141</span>        <span class="keyword">const</span> user = connectedUsers.<span class="function">get</span>(socket.id);
+<span class="line-number">142</span>        <span class="keyword">if</span> (!user) <span class="keyword">return</span>;
+<span class="line-number">143</span>        
+<span class="line-number">144</span>        <span class="keyword">const</span> message = <span class="keyword">new</span> Message({
+<span class="line-number">145</span>            sender: user.username,
+<span class="line-number">146</span>            receiver: data.receiver,
+<span class="line-number">147</span>            message: data.message,
+<span class="line-number">148</span>            room: data.room,
+<span class="line-number">149</span>            type: data.type
+<span class="line-number">150</span>        });
+<span class="line-number">151</span>        await message.<span class="function">save</span>();
+<span class="line-number">152</span>        
+<span class="line-number">153</span>        <span class="keyword">if</span> (data.type === <span class="string">'public'</span>) {
+<span class="line-number">154</span>            io.<span class="function">emit</span>(<span class="string">'new_message'</span>, {
+<span class="line-number">155</span>                sender: user.username,
+<span class="line-number">156</span>                message: data.message,
+<span class="line-number">157</span>                type: 'public',
+<span class="line-number">158</span>                timestamp: <span class="keyword">new</span> Date()
+<span class="line-number">159</span>            });
+<span class="line-number">160</span>        } <span class="keyword">else</span> <span class="keyword">if</span> (data.type === <span class="string">'private'</span>) {
+<span class="line-number">161</span>            <span class="comment">// إرسال للشخص المحدد فقط</span>
+<span class="line-number">162</span>            <span class="keyword">const</span> targetUser = [...connectedUsers.<span class="function">values</span>()]
+<span class="line-number">163</span>                .<span class="function">find</span>(u => u.username === data.receiver);
+<span class="line-number">164</span>            <span class="keyword">if</span> (targetUser) {
+<span class="line-number">165</span>                targetUser.socket.<span class="function">emit</span>(<span class="string">'private_message'</span>, {
+<span class="line-number">166</span>                    sender: user.username,
+<span class="line-number">167</span>                    message: data.message,
+<span class="line-number">168</span>                    timestamp: <span class="keyword">new</span> Date()
+<span class="line-number">169</span>                });
+<span class="line-number">170</span>            }
+<span class="line-number">171</span>        } <span class="keyword">else</span> <span class="keyword">if</span> (data.type === <span class="string">'room'</span> && user.room) {
+<span class="line-number">172</span>            io.<span class="function">to</span>(user.room.toString()).<span class="function">emit</span>(<span class="string">'room_message'</span>, {
+<span class="line-number">173</span>                sender: user.username,
+<span class="line-number">174</span>                message: data.message,
+<span class="line-number">175</span>                roomId: user.room,
+<span class="line-number">176</span>                timestamp: <span class="keyword">new</span> Date()
+<span class="line-number">177</span>            });
+<span class="line-number">178</span>        }
+<span class="line-number">179</span>    });
+<span class="line-number">180</span>
+<span class="line-number">181</span>    <span class="comment">// حركة في لعبة XO</span>
+<span class="line-number">182</span>    socket.<span class="function">on</span>(<span class="string">'xo_move'</span>, (data) => {
+<span class="line-number">183</span>        <span class="keyword">const</span> user = connectedUsers.<span class="function">get</span>(socket.id);
+<span class="line-number">184</span>        <span class="keyword">if</span> (!user || !user.room) <span class="keyword">return</span>;
+<span class="line-number">185</span>        
+<span class="line-number">186</span>        io.<span class="function">to</span>(user.room.toString()).<span class="function">emit</span>(<span class="string">'xo_move_made'</span>, {
+<span class="line-number">187</span>            player: user.username,
+<span class="line-number">188</span>            position: data.position,
+<span class="line-number">189</span>            symbol: data.symbol
+<span class="line-number">190</span>        });
+<span class="line-number">191</span>    });
+<span class="line-number">192</span>
+<span class="line-number">193</span>    <span class="comment">// تحديث نتيجة لعبة</span>
+<span class="line-number">194</span>    socket.<span class="function">on</span>(<span class="string">'game_result'</span>, async (data) => {
+<span class="line-number">195</span>        <span class="keyword">const</span> user = connectedUsers.<span class="function">get</span>(socket.id);
+<span class="line-number">196</span>        <span class="keyword">if</span> (!user) <span class="keyword">return</span>;
+<span class="line-number">197</span>        
+<span class="line-number">198</span>        <span class="keyword">const</span> dbUser = await User.<span class="function">findOne</span>({ username: user.username });
+<span class="line-number">199</span>        <span class="keyword">if</span> (data.won) {
+<span class="line-number">200</span>            dbUser.score += <span class="number">100</span>;
+<span class="line-number">201</span>            dbUser.wins += <span class="number">1</span>;
+<span class="line-number">202</span>        }
+<span class="line-number">203</span>        await dbUser.<span class="function">save</span>();
+<span class="line-number">204</span>        
+<span class="line-number">205</span>        io.<span class="function">emit</span>(<span class="string">'leaderboard_update'</span>);
+<span class="line-number">206</span>    });
+<span class="line-number">207</span>
+<span class="line-number">208</span>    <span class="comment">// قطع الاتصال</span>
+<span class="line-number">209</span>    socket.<span class="function">on</span>(<span class="string">'disconnect'</span>, () => {
+<span class="line-number">210</span>        <span class="keyword">const</span> user = connectedUsers.<span class="function">get</span>(socket.id);
+<span class="line-number">211</span>        <span class="keyword">if</span> (user) {
+<span class="line-number">212</span>            io.<span class="function">emit</span>(<span class="string">'user_disconnected'</span>, { username: user.username });
+<span class="line-number">213</span>            connectedUsers.<span class="function">delete</span>(socket.id);
+<span class="line-number">214</span>        }
+<span class="line-number">215</span>    });
+<span class="line-number">216</span>});
+<span class="line-number">217</span>
+<span class="line-number">218</span><span class="comment">// تشغيل الخادم على المنفذ 3000</span>
+<span class="line-number">219</span>server.<span class="function">listen</span>(<span class="number">3000</span>, () => {
+<span class="line-number">220</span>    <span class="console">console</span>.<span class="function">log</span>(<span class="string">'🚀 الخادم يعمل على المنفذ 3000'</span>);
+<span class="line-number">221</span>});
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== متغيرات النظام =====
+        let socket = null;
+        let currentUser = null;
+        let currentGame = 'xo';
+        let currentRoom = null;
+        let currentChat = 'public';
+        let gameActive = false;
+        let connectedPlayers = new Map();
+        let rooms = new Map();
+        let notifications = [];
+        let soundEnabled = true;
+        let musicEnabled = false;
+
+        // ===== تهيئة النظام =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initGame();
+            initEventListeners();
+            initGameBoards();
+            showNotification('🎮 مرحباً بك!', 'اختر لعبة وابدأ اللعب مع الأصدقاء', 'info');
+            
+            // عرض نافذة تسجيل الدخول
+            setTimeout(() => {
+                document.getElementById('loginModal').style.display = 'flex';
+            }, 1000);
+        });
+
+        // ===== تهيئة الألعاب =====
+        function initGame() {
+            createXOBoard();
+            loadLeaderboard();
+            updateOnlinePlayers();
+        }
+
+        function initEventListeners() {
+            // أزرار اللعبة
+            document.getElementById('startGameBtn').addEventListener('click', startGame);
+            document.getElementById('restartGameBtn').addEventListener('click', restartGame);
+            document.getElementById('inviteFriendBtn').addEventListener('click', inviteFriend);
+            document.getElementById('leaveGameBtn').addEventListener('click', leaveGame);
+            
+            // اختيار الألعاب
+            document.querySelectorAll('.game-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.game-option').forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                    switchGame(this.dataset.game);
+                });
+            });
+            
+            // الدردشة
+            document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+            
+            document.querySelectorAll('.chat-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentChat = this.dataset.chat;
+                    loadChatHistory();
+                });
+            });
+            
+            // تسجيل الدخول
+            document.getElementById('loginSubmitBtn').addEventListener('click', handleLogin);
+            document.getElementById('showRegister').addEventListener('click', function(e) {
+                e.preventDefault();
+                showNotification('التسجيل', 'سيتم تفعيل التسجيل قريباً', 'info');
+            });
+            
+            // الغرف
+            document.getElementById('createRoomBtn').addEventListener('click', createRoom);
+            
+            // الصوت
+            document.getElementById('toggleSound').addEventListener('click', toggleSound);
+            document.getElementById('toggleMusic').addEventListener('click', toggleMusic);
+            
+            // الأكواد
+            document.getElementById('closeCodeViewer').addEventListener('click', function() {
+                document.getElementById('codeViewer').classList.remove('active');
+            });
+            
+            // نسخ الأكواد
+            document.querySelectorAll('.code-block').forEach(block => {
+                block.addEventListener('click', function() {
+                    const text = this.innerText;
+                    navigator.clipboard.writeText(text).then(() => {
+                        showNotification('تم النسخ', 'تم نسخ الكود بنجاح', 'success');
+                    });
+                });
+            });
+        }
+
+        // ===== نظام الشبكة (محاكاة) =====
+        function connectToServer() {
+            // محاكاة اتصال بالخادم
+            setTimeout(() => {
+                if (!currentUser) return;
+                
+                // محاكاة بيانات الخادم
+                socket = {
+                    emit: function(event, data) {
+                        console.log('إرسال:', event, data);
+                        // محاكاة استجابة الخادم
+                        handleServerResponse(event, data);
+                    }
+                };
+                
+                showNotification('✅ متصل بالخادم', 'يمكنك الآن اللعب أونلاين', 'success');
+                updateUserStatus('online');
+                updateOnlinePlayers();
+                
+                // محاكاة لاعبين متصلين
+                simulateOnlinePlayers();
+                
+            }, 1000);
+        }
+
+        function handleServerResponse(event, data) {
+            switch(event) {
+                case 'login':
+                    // محاكاة تسجيل الدخول الناجح
+                    setTimeout(() => {
+                        handleLoginSuccess(data);
+                    }, 500);
+                    break;
+                case 'create_room':
+                    // محاكاة إنشاء غرفة
+                    setTimeout(() => {
+                        handleRoomCreated(data);
+                    }, 300);
+                    break;
+                case 'send_message':
+                    // محاكاة إرسال رسالة
+                    setTimeout(() => {
+                        handleMessageSent(data);
+                    }, 200);
+                    break;
+            }
+        }
+
+        // ===== نظام تسجيل الدخول =====
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                showNotification('خطأ', 'يرجى ملء جميع الحقول', 'error');
+                return;
+            }
+            
+            currentUser = {
+                username,
+                password,
+                score: 0,
+                wins: 0,
+                level: 1
+            };
+            
+            // حفظ في localStorage
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('username', username);
+            
+            document.getElementById('loginModal').style.display = 'none';
+            showNotification('🎉 مرحباً ' + username, 'تم تسجيل الدخول بنجاح', 'success');
+            
+            // تحديث الواجهة
+            updateUserProfile();
+            connectToServer();
+        }
+
+        function handleLoginSuccess(data) {
+            if (data) {
+                currentUser.score = data.score || 0;
+                currentUser.wins = data.wins || 0;
+                updateUserProfile();
+            }
+        }
+
+        function updateUserProfile() {
+            if (!currentUser) return;
+            
+            document.getElementById('userName').textContent = currentUser.username;
+            document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+            document.getElementById('userScore').textContent = currentUser.score;
+            document.getElementById('userWins').textContent = currentUser.wins;
+            document.getElementById('userStatus').textContent = 'متصل';
+            document.getElementById('userStatus').style.background = '#10b981';
+        }
+
+        // ===== نظام الألعاب =====
+        function switchGame(game) {
+            currentGame = game;
+            
+            // إخفاء جميع الألعاب
+            document.querySelectorAll('.game-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // إظهار اللعبة المحددة
+            document.getElementById(game + 'Game').style.display = 'block';
+            document.getElementById('currentGameTitle').textContent = 
+                game === 'xo' ? 'لعبة XO' : 
+                game === 'snake' ? 'لعبة الدودة' : 'التفاح السريع';
+                
+            showNotification('تغيير اللعبة', 'تم التبديل إلى ' + document.getElementById('currentGameTitle').textContent, 'info');
+        }
+
+        function startGame() {
+            if (!currentUser) {
+                showNotification('يجب تسجيل الدخول', 'سجل الدخول أولاً للعب', 'warning');
+                document.getElementById('loginModal').style.display = 'flex';
+                return;
+            }
+            
+            gameActive = true;
+            
+            switch(currentGame) {
+                case 'xo':
+                    startXOGame();
+                    break;
+                case 'snake':
+                    startSnakeGame();
+                    break;
+                case 'apple':
+                    startAppleGame();
+                    break;
+            }
+            
+            document.getElementById('startGameBtn').disabled = true;
+            document.getElementById('restartGameBtn').disabled = false;
+            document.getElementById('leaveGameBtn').disabled = false;
+            
+            showNotification('🎮 بدأت اللعبة!', 'حظاً طيباً', 'success');
+            
+            // محاكاة خصم أونلاين
+            if (socket) {
+                setTimeout(() => {
+                    simulateOnlineOpponent();
+                }, 2000);
+            }
+        }
+
+        function restartGame() {
+            switch(currentGame) {
+                case 'xo':
+                    resetXOGame();
+                    break;
+                case 'snake':
+                    resetSnakeGame();
+                    break;
+                case 'apple':
+                    resetAppleGame();
+                    break;
+            }
+            
+            showNotification('🔄 إعادة', 'تم إعادة اللعبة', 'info');
+        }
+
+        function inviteFriend() {
+            if (!socket) {
+                showNotification('غير متصل', 'اتصل بالخادم أولاً', 'warning');
+                return;
+            }
+            
+            const friendName = prompt('أدخل اسم الصديق للدعوة:');
+            if (friendName) {
+                socket.emit('invite_player', {
+                    from: currentUser.username,
+                    to: friendName,
+                    game: currentGame,
+                    room: currentRoom
+                });
+                
+                showNotification('📩 دعوة', 'تم إرسال دعوة إلى ' + friendName, 'success');
+            }
+        }
+
+        function leaveGame() {
+            gameActive = false;
+            
+            document.getElementById('startGameBtn').disabled = false;
+            document.getElementById('restartGameBtn').disabled = true;
+            document.getElementById('leaveGameBtn').disabled = true;
+            
+            showNotification('👋 مغادرة', 'غادرت اللعبة', 'info');
+        }
+
+        // ===== لعبة XO =====
+        let xoBoard = ['', '', '', '', '', '', '', '', ''];
+        let xoTurn = 'X';
+        let xoPlayerSymbol = 'X';
+
+        function createXOBoard() {
+            const board = document.getElementById('xoBoard');
+            board.innerHTML = '';
+            
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'xo-cell';
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => makeXOMove(i));
+                board.appendChild(cell);
+            }
+        }
+
+        function startXOGame() {
+            xoBoard = ['', '', '', '', '', '', '', '', ''];
+            xoTurn = 'X';
+            xoPlayerSymbol = Math.random() > 0.5 ? 'X' : 'O';
+            
+            document.querySelectorAll('.xo-cell').forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o');
+                cell.style.cursor = 'pointer';
+            });
+            
+            document.getElementById('currentTurn').textContent = xoTurn;
+            
+            // إذا كان اللاعب يلعب بـ O، يبدأ الكمبيوتر
+            if (xoPlayerSymbol === 'O') {
+                setTimeout(computerXOMove, 1000);
+            }
+        }
+
+        function makeXOMove(index) {
+            if (!gameActive || xoBoard[index] !== '' || xoTurn !== xoPlayerSymbol) return;
+            
+            xoBoard[index] = xoPlayerSymbol;
+            const cell = document.querySelector(`.xo-cell[data-index="${index}"]`);
+            cell.textContent = xoPlayerSymbol;
+            cell.classList.add(xoPlayerSymbol.toLowerCase());
+            cell.style.cursor = 'not-allowed';
+            
+            // إرسال الحركة للخادم
+            if (socket) {
+                socket.emit('xo_move', {
+                    position: index,
+                    symbol: xoPlayerSymbol,
+                    room: currentRoom
+                });
+            }
+            
+            // التحقق من الفائز
+            const winner = checkXOWinner();
+            if (winner) {
+                endXOGame(winner);
+                return;
+            }
+            
+            // التحقق من التعادل
+            if (xoBoard.every(cell => cell !== '')) {
+                endXOGame('draw');
+                return;
+            }
+            
+            // تبديل الدور
+            xoTurn = xoTurn === 'X' ? 'O' : 'X';
+            document.getElementById('currentTurn').textContent = xoTurn;
+            
+            // إذا كان ضد الكمبيوتر
+            if (!socket && xoTurn !== xoPlayerSymbol) {
+                setTimeout(computerXOMove, 1000);
+            }
+        }
+
+        function computerXOMove() {
+            if (!gameActive) return;
+            
+            // خوارزمية الكمبيوتر
+            const availableMoves = [];
+            xoBoard.forEach((cell, index) => {
+                if (cell === '') availableMoves.push(index);
+            });
+            
+            if (availableMoves.length > 0) {
+                // حاول الفوز
+                for (let move of availableMoves) {
+                    const tempBoard = [...xoBoard];
+                    tempBoard[move] = xoTurn;
+                    if (checkXOWinner(tempBoard) === xoTurn) {
+                        makeXOMove(move);
+                        return;
+                    }
+                }
+                
+                // حاول منع الفوز
+                const opponentSymbol = xoTurn === 'X' ? 'O' : 'X';
+                for (let move of availableMoves) {
+                    const tempBoard = [...xoBoard];
+                    tempBoard[move] = opponentSymbol;
+                    if (checkXOWinner(tempBoard) === opponentSymbol) {
+                        makeXOMove(move);
+                        return;
+                    }
+                }
+                
+                // حركة عشوائية
+                const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                makeXOMove(randomMove);
+            }
+        }
+
+        function checkXOWinner(board = xoBoard) {
+            const lines = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            
+            for (let line of lines) {
+                const [a, b, c] = line;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            return null;
+        }
+
+        function endXOGame(winner) {
+            gameActive = false;
+            
+            let message = '';
+            if (winner === 'draw') {
+                message = 'تعادل!';
+                if (currentUser) {
+                    currentUser.score += 10;
+                }
+            } else if (winner === xoPlayerSymbol) {
+                message = '🎉 فزت!';
+                if (currentUser) {
+                    currentUser.score += 100;
+                    currentUser.wins += 1;
+                    updateUserProfile();
+                    saveUserData();
+                    showConfetti();
+                }
+            } else {
+                message = '😢 خسرت';
+                if (currentUser) {
+                    currentUser.score += 10;
+                    updateUserProfile();
+                    saveUserData();
+                }
+            }
+            
+            showNotification('نتيجة XO', message, winner === xoPlayerSymbol ? 'success' : 'error');
+            updateLeaderboard();
+        }
+
+        function resetXOGame() {
+            xoBoard = ['', '', '', '', '', '', '', '', ''];
+            xoTurn = 'X';
+            
+            document.querySelectorAll('.xo-cell').forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o');
+                cell.style.cursor = 'pointer';
+            });
+            
+            document.getElementById('currentTurn').textContent = xoTurn;
+            document.getElementById('startGameBtn').disabled = false;
+            document.getElementById('restartGameBtn').disabled = true;
+        }
+
+        // ===== لعبة الدودة =====
+        let snakeGame = null;
+        let snakeScore = 0;
+
+        function startSnakeGame() {
+            const board = document.getElementById('snakeBoard');
+            board.innerHTML = '';
+            snakeScore = 0;
+            document.getElementById('snakeScore').textContent = '0';
+            
+            // إنشاء الدودة
+            const snake = [
+                {x: 10, y: 10},
+                {x: 9, y: 10},
+                {x: 8, y: 10}
+            ];
+            
+            // إنشاء الطعام
+            const food = {x: 15, y: 15};
+            
+            snakeGame = {
+                snake,
+                food,
+                direction: 'right',
+                speed: 150,
+                interval: null
+            };
+            
+            renderSnakeGame();
+            
+            // بدء المؤقت
+            snakeGame.interval = setInterval(updateSnakeGame, snakeGame.speed);
+            
+            // إضافة مستمعات لوحة المفاتيح
+            document.addEventListener('keydown', handleSnakeKeyPress);
+        }
+
+        function renderSnakeGame() {
+            const board = document.getElementById('snakeBoard');
+            board.innerHTML = '';
+            
+            // رسم الدودة
+            snakeGame.snake.forEach((segment, index) => {
+                const cell = document.createElement('div');
+                cell.className = index === 0 ? 'snake-cell snake-head' : 'snake-cell';
+                cell.style.left = segment.x * 20 + 'px';
+                cell.style.top = segment.y * 20 + 'px';
+                board.appendChild(cell);
+            });
+            
+            // رسم الطعام
+            const foodCell = document.createElement('div');
+            foodCell.className = 'snake-food';
+            foodCell.style.left = snakeGame.food.x * 20 + 'px';
+            foodCell.style.top = snakeGame.food.y * 20 + 'px';
+            board.appendChild(foodCell);
+        }
+
+        function updateSnakeGame() {
+            if (!gameActive || !snakeGame) return;
+            
+            const head = {...snakeGame.snake[0]};
+            
+            // تحديث موقع الرأس
+            switch(snakeGame.direction) {
+                case 'up': head.y--; break;
+                case 'down': head.y++; break;
+                case 'left': head.x--; break;
+                case 'right': head.x++; break;
+            }
+            
+            // التحقق من الاصطدام بالجدران
+            if (head.x < 0 || head.x >= 30 || head.y < 0 || head.y >= 20) {
+                endSnakeGame();
+                return;
+            }
+            
+            // التحقق من الاصطدام بالنفس
+            for (let segment of snakeGame.snake) {
+                if (segment.x === head.x && segment.y === head.y) {
+                    endSnakeGame();
+                    return;
+                }
+            }
+            
+            // إضافة الرأس الجديد
+            snakeGame.snake.unshift(head);
+            
+            // التحقق من أكل الطعام
+            if (head.x === snakeGame.food.x && head.y === snakeGame.food.y) {
+                snakeScore += 10;
+                document.getElementById('snakeScore').textContent = snakeScore;
+                
+                // إنشاء طعام جديد
+                snakeGame.food = {
+                    x: Math.floor(Math.random() * 30),
+                    y: Math.floor(Math.random() * 20)
+                };
+                
+                // زيادة السرعة
+                if (snakeScore % 50 === 0 && snakeGame.speed > 50) {
+                    snakeGame.speed -= 10;
+                    clearInterval(snakeGame.interval);
+                    snakeGame.interval = setInterval(updateSnakeGame, snakeGame.speed);
+                }
+            } else {
+                // إزالة الذيل إذا لم يؤكل طعام
+                snakeGame.snake.pop();
+            }
+            
+            renderSnakeGame();
+        }
+
+        function handleSnakeKeyPress(e) {
+            if (!snakeGame) return;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    if (snakeGame.direction !== 'down') snakeGame.direction = 'up';
+                    break;
+                case 'ArrowDown':
+                    if (snakeGame.direction !== 'up') snakeGame.direction = 'down';
+                    break;
+                case 'ArrowLeft':
+                    if (snakeGame.direction !== 'right') snakeGame.direction = 'left';
+                    break;
+                case 'ArrowRight':
+                    if (snakeGame.direction !== 'left') snakeGame.direction = 'right';
+                    break;
+            }
+        }
+
+        function endSnakeGame() {
+            if (snakeGame && snakeGame.interval) {
+                clearInterval(snakeGame.interval);
+            }
+            
+            gameActive = false;
+            
+            // تحديث النقاط
+            if (currentUser) {
+                currentUser.score += snakeScore;
+                updateUserProfile();
+                saveUserData();
+            }
+            
+            showNotification('لعبة الدودة', `انتهت اللعبة! النقاط: ${snakeScore}`, 'info');
+            updateLeaderboard();
+        }
+
+        function resetSnakeGame() {
+            if (snakeGame && snakeGame.interval) {
+                clearInterval(snakeGame.interval);
+            }
+            
+            startSnakeGame();
+        }
+
+        // ===== لعبة التفاح =====
+        let appleGame = null;
+        let appleScore = 0;
+        let appleTime = 30;
+
+        function startAppleGame() {
+            const board = document.getElementById('appleBoard');
+            board.innerHTML = '';
+            appleScore = 0;
+            appleTime = 30;
+            
+            document.getElementById('appleScore').textContent = '0';
+            document.getElementById('appleTime').textContent = '30';
+            
+            appleGame = {
+                apples: [],
+                interval: null,
+                timer: null
+            };
+            
+            // إنشاء التفاحات
+            createApples();
+            
+            // بدء المؤقت
+            appleGame.interval = setInterval(updateAppleGame, 1000);
+            appleGame.timer = setInterval(updateAppleTimer, 1000);
+        }
+
+        function createApples() {
+            const board = document.getElementById('appleBoard');
+            
+            // إنشاء 5 تفاحات
+            for (let i = 0; i < 5; i++) {
+                const apple = document.createElement('div');
+                apple.className = 'apple';
+                apple.style.left = Math.random() * 560 + 'px';
+                apple.style.top = Math.random() * 360 + 'px';
+                
+                apple.addEventListener('click', () => {
+                    if (!gameActive) return;
+                    
+                    appleScore += 10;
+                    document.getElementById('appleScore').textContent = appleScore;
+                    
+                    // إزالة التفاحة وإنشاء جديدة
+                    apple.remove();
+                    createNewApple();
+                    
+                    // تأثير صوتي
+                    playSoundEffect('click');
+                });
+                
+                board.appendChild(apple);
+                appleGame.apples.push(apple);
+            }
+        }
+
+        function createNewApple() {
+            const board = document.getElementById('appleBoard');
+            const apple = document.createElement('div');
+            apple.className = 'apple';
+            apple.style.left = Math.random() * 560 + 'px';
+            apple.style.top = Math.random() * 360 + 'px';
+            
+            apple.addEventListener('click', () => {
+                if (!gameActive) return;
+                
+                appleScore += 10;
+                document.getElementById('appleScore').textContent = appleScore;
+                
+                apple.remove();
+                createNewApple();
+                
+                playSoundEffect('click');
+            });
+            
+            board.appendChild(apple);
+            appleGame.apples.push(apple);
+        }
+
+        function updateAppleGame() {
+            // تحريك التفاحات بشكل عشوائي
+            appleGame.apples.forEach(apple => {
+                if (Math.random() > 0.7) {
+                    apple.style.left = Math.random() * 560 + 'px';
+                    apple.style.top = Math.random() * 360 + 'px';
+                }
+            });
+        }
+
+        function updateAppleTimer() {
+            if (!gameActive) return;
+            
+            appleTime--;
+            document.getElementById('appleTime').textContent = appleTime;
+            
+            if (appleTime <= 0) {
+                endAppleGame();
+            }
+        }
+
+        function endAppleGame() {
+            if (appleGame) {
+                if (appleGame.interval) clearInterval(appleGame.interval);
+                if (appleGame.timer) clearInterval(appleGame.timer);
+            }
+            
+            gameActive = false;
+            
+            // تحديث النقاط
+            if (currentUser) {
+                currentUser.score += appleScore;
+                updateUserProfile();
+                saveUserData();
+            }
+            
+            showNotification('التفاح السريع', `انتهى الوقت! النقاط: ${appleScore}`, 'info');
+            updateLeaderboard();
+        }
+
+        function resetAppleGame() {
+            if (appleGame) {
+                if (appleGame.interval) clearInterval(appleGame.interval);
+                if (appleGame.timer) clearInterval(appleGame.timer);
+            }
+            
+            startAppleGame();
+        }
+
+        // ===== نظام الدردشة =====
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentUser) return;
+            
+            // إضافة الرسالة محلياً
+            addMessageToChat(currentUser.username, message, 'own');
+            
+            // إرسال للخادم
+            if (socket) {
+                socket.emit('send_message', {
+                    message: message,
+                    type: currentChat,
+                    receiver: currentChat === 'private' ? getSelectedUser() : null,
+                    room: currentRoom
+                });
+            }
+            
+            input.value = '';
+            
+            // محاكاة ردود
+            if (currentChat === 'public') {
+                simulateChatResponse(message);
+            }
+        }
+
+        function addMessageToChat(sender, message, type = 'other') {
+            const chatWindow = document.getElementById('chatWindow');
+            const messageDiv = document.createElement('div');
+            
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 5px;">
+                    ${type === 'own' ? 'أنت' : sender}
+                </div>
+                <div>${message}</div>
+                <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.7;">
+                    ${new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'})}
+                </div>
+            `;
+            
+            chatWindow.insertBefore(messageDiv, chatWindow.firstChild);
+            
+            // حفظ الرسالة
+            saveMessage(sender, message, type);
+        }
+
+        function loadChatHistory() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.innerHTML = '';
+            
+            // تحميل الرسائل المحفوظة
+            const messages = JSON.parse(localStorage.getItem(`chat_${currentChat}`)) || [];
+            
+            messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${msg.type}`;
+                messageDiv.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 5px;">
+                        ${msg.sender}
+                    </div>
+                    <div>${msg.message}</div>
+                    <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.7;">
+                        ${msg.time}
+                    </div>
+                `;
+                chatWindow.insertBefore(messageDiv, chatWindow.firstChild);
+            });
+        }
+
+        function saveMessage(sender, message, type) {
+            const messages = JSON.parse(localStorage.getItem(`chat_${currentChat}`)) || [];
+            
+            messages.push({
+                sender,
+                message,
+                type,
+                time: new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'})
+            });
+            
+            // حفظ آخر 100 رسالة فقط
+            if (messages.length > 100) {
+                messages.shift();
+            }
+            
+            localStorage.setItem(`chat_${currentChat}`, JSON.stringify(messages));
+        }
+
+        function simulateChatResponse(message) {
+            // محاكاة ردود عشوائية
+            const responses = [
+                'لعبة رائعة!',
+                'يمكننا اللعب معاً',
+                'أحسنت!',
+                'حظاً طيباً',
+                'تهانينا على الفوز'
+            ];
+            
+            if (Math.random() > 0.5) {
+                setTimeout(() => {
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessageToChat('لاعب', randomResponse, 'other');
+                }, 1000 + Math.random() * 2000);
+            }
+        }
+
+        // ===== نظام الغرف =====
+        function createRoom() {
+            if (!currentUser) {
+                showNotification('يجب تسجيل الدخول', 'سجل الدخول أولاً', 'warning');
+                return;
+            }
+            
+            const roomName = prompt('اسم الغرفة:') || `غرفة ${currentUser.username}`;
+            const maxPlayers = parseInt(prompt('الحد الأقصى للاعبين (2-8):') || '2');
+            
+            const room = {
+                id: Date.now().toString(),
+                name: roomName,
+                gameType: currentGame,
+                players: [currentUser.username],
+                maxPlayers: Math.max(2, Math.min(8, maxPlayers)),
+                isPrivate: false,
+                creator: currentUser.username,
+                createdAt: new Date()
+            };
+            
+            rooms.set(room.id, room);
+            currentRoom = room.id;
+            
+            // إرسال للخادم
+            if (socket) {
+                socket.emit('create_room', {
+                    name: room.name,
+                    gameType: room.gameType,
+                    maxPlayers: room.maxPlayers
+                });
+            }
+            
+            updateRoomsList();
+            showNotification('غرفة جديدة', `تم إنشاء غرفة "${roomName}"`, 'success');
+        }
+
+        function updateRoomsList() {
+            const grid = document.getElementById('roomsGrid');
+            grid.innerHTML = '';
+            
+            rooms.forEach(room => {
+                const card = document.createElement('div');
+                card.className = `room-card ${room.id === currentRoom ? 'active' : ''}`;
+                card.innerHTML = `
+                    <div class="room-header">
+                        <div style="font-weight: bold;">${room.name}</div>
+                        <div class="room-players">
+                            <i class="fas fa-user"></i>
+                            <span>${room.players.length}/${room.maxPlayers}</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.9rem; margin-bottom: 10px; opacity: 0.8;">
+                        ${room.gameType === 'xo' ? '🎮 XO' : room.gameType === 'snake' ? '🐍 الدودة' : '🍎 التفاح'}
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; padding: 8px;" onclick="joinRoom('${room.id}')">
+                        ${room.id === currentRoom ? 'في الغرفة' : 'انضم'}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function joinRoom(roomId) {
+            const room = rooms.get(roomId);
+            if (!room) return;
+            
+            if (room.players.length >= room.maxPlayers) {
+                showNotification('غرفة ممتلئة', 'لا يوجد أماكن متاحة', 'warning');
+                return;
+            }
+            
+            if (!room.players.includes(currentUser.username)) {
+                room.players.push(currentUser.username);
+            }
+            
+            currentRoom = roomId;
+            updateRoomsList();
+            
+            // إرسال للخادم
+            if (socket) {
+                socket.emit('join_room', { roomId });
+            }
+            
+            showNotification('انضمام', `انضممت إلى غرفة "${room.name}"`, 'success');
+            
+            // إرسال رسالة ترحيب
+            addMessageToChat('النظام', `انضم ${currentUser.username} إلى الغرفة`, 'system');
+        }
+
+        function handleRoomCreated(data) {
+            if (data) {
+                const room = {
+                    id: data.id,
+                    name: data.name,
+                    gameType: data.gameType,
+                    players: data.players,
+                    maxPlayers: data.maxPlayers
+                };
+                
+                rooms.set(room.id, room);
+                updateRoomsList();
+            }
+        }
+
+        // ===== نظام اللاعبين =====
+        function updateOnlinePlayers() {
+            const list = document.getElementById('playersList');
+            list.innerHTML = '';
+            
+            // لاعبين افتراضيين
+            const defaultPlayers = [
+                {username: 'أحمد', status: 'online', score: 1500},
+                {username: 'سارة', status: 'ingame', score: 1200},
+                {username: 'محمد', status: 'online', score: 1000},
+                {username: 'فاطمة', status: 'online', score: 800},
+                {username: 'خالد', status: 'offline', score: 600}
+            ];
+            
+            // إضافة المستخدم الحالي
+            if (currentUser) {
+                defaultPlayers.unshift({
+                    username: currentUser.username,
+                    status: 'online',
+                    score: currentUser.score
+                });
+            }
+            
+            defaultPlayers.forEach(player => {
+                const tag = document.createElement('div');
+                tag.className = 'player-tag';
+                tag.innerHTML = `
+                    <div class="player-status ${player.status}"></div>
+                    <div>${player.username}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7;">${player.score}</div>
+                `;
+                list.appendChild(tag);
+            });
+        }
+
+        function simulateOnlinePlayers() {
+            // محاكاة تحديث اللاعبين
+            setInterval(() => {
+                updateOnlinePlayers();
+            }, 5000);
+        }
+
+        function simulateOnlineOpponent() {
+            // محاكاة خصم أونلاين
+            if (currentGame === 'xo' && gameActive && socket) {
+                setTimeout(() => {
+                    if (gameActive) {
+                        const availableMoves = [];
+                        xoBoard.forEach((cell, index) => {
+                            if (cell === '') availableMoves.push(index);
+                        });
+                        
+                        if (availableMoves.length > 0) {
+                            const move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                            
+                            // محاكاة حركة الخصم
+                            xoBoard[move] = xoTurn;
+                            const cell = document.querySelector(`.xo-cell[data-index="${move}"]`);
+                            cell.textContent = xoTurn;
+                            cell.classList.add(xoTurn.toLowerCase());
+                            
+                            // التحقق من الفائز
+                            const winner = checkXOWinner();
+                            if (winner) {
+                                endXOGame(winner);
+                                return;
+                            }
+                            
+                            xoTurn = xoTurn === 'X' ? 'O' : 'X';
+                            document.getElementById('currentTurn').textContent = xoTurn;
+                            
+                            showNotification('خصم أونلاين', 'قام الخصم بحركة', 'info');
+                        }
+                    }
+                }, 3000);
+            }
+        }
+
+        // ===== نظام المتصدرين =====
+        function loadLeaderboard() {
+            const content = document.getElementById('leaderboardContent');
+            content.innerHTML = '';
+            
+            // بيانات افتراضية
+            const players = [
+                {username: 'أحمد', score: 1500, wins: 15},
+                {username: 'سارة', score: 1200, wins: 12},
+                {username: 'محمد', score: 1000, wins: 10},
+                {username: 'فاطمة', score: 800, wins: 8},
+                {username: 'خالد', score: 600, wins: 6}
+            ];
+            
+            // إضافة المستخدم الحالي إذا كان موجوداً
+            if (currentUser) {
+                players.push({
+                    username: currentUser.username,
+                    score: currentUser.score,
+                    wins: currentUser.wins
+                });
+                
+                // ترتيب حسب النقاط
+                players.sort((a, b) => b.score - a.score);
+            }
+            
+            players.forEach((player, index) => {
+                const row = document.createElement('div');
+                row.className = 'leaderboard-row';
+                row.innerHTML = `
+                    <div class="rank rank-${index < 3 ? index + 1 : 'other'}">
+                        ${index + 1}
+                    </div>
+                    <div>${player.username}</div>
+                    <div>${player.score}</div>
+                    <div>${player.wins}</div>
+                `;
+                content.appendChild(row);
+            });
+        }
+
+        function updateLeaderboard() {
+            loadLeaderboard();
+        }
+
+        // ===== نظام الإشعارات =====
+        function showNotification(title, message, type = 'info') {
+            const center = document.getElementById('notificationCenter');
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            
+            // ألوان حسب النوع
+            const colors = {
+                info: 'linear-gradient(45deg, #3b82f6, #1d4ed8)',
+                success: 'linear-gradient(45deg, #10b981, #059669)',
+                warning: 'linear-gradient(45deg, #f59e0b, #d97706)',
+                error: 'linear-gradient(45deg, #ef4444, #dc2626)'
+            };
+            
+            notification.style.background = colors[type] || colors.info;
+            
+            notification.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 5px;">${title}</div>
+                <div>${message}</div>
+            `;
+            
+            center.appendChild(notification);
+            
+            // إزالة بعد 5 ثوانٍ
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 500);
+            }, 5000);
+            
+            // حفظ في السجل
+            notifications.push({title, message, time: new Date()});
+        }
+
+        // ===== وظائف مساعدة =====
+        function updateUserStatus(status) {
+            const statusEl = document.getElementById('userStatus');
+            statusEl.textContent = 
+                status === 'online' ? 'متصل' :
+                status === 'ingame' ? 'يلعب' : 'غير متصل';
+                
+            statusEl.style.background = 
+                status === 'online' ? '#10b981' :
+                status === 'ingame' ? '#f59e0b' : '#6b7280';
+        }
+
+        function saveUserData() {
+            if (currentUser) {
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+        }
+
+        function playSoundEffect(type) {
+            if (!soundEnabled) return;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                switch(type) {
+                    case 'click':
+                        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                        break;
+                    case 'win':
+                        oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+                        break;
+                    case 'move':
+                        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                        break;
+                }
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log('Sound:', type);
+            }
+        }
+
+        function showConfetti() {
+            // تأثير كونفيتي بسيط
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.background = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b'][i % 4];
+                confetti.style.borderRadius = '50%';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.zIndex = '9999';
+                
+                document.body.appendChild(confetti);
+                
+                confetti.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: 1000 + Math.random() * 1000,
+                    easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
+                });
+                
+                setTimeout(() => confetti.remove(), 2000);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('toggleSound').innerHTML = 
+                soundEnabled ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
+            showNotification('الصوت', soundEnabled ? 'تم تشغيل الصوت' : 'تم إيقاف الصوت', 'info');
+        }
+
+        function toggleMusic() {
+            musicEnabled = !musicEnabled;
+            document.getElementById('toggleMusic').innerHTML = 
+                musicEnabled ? '<i class="fas fa-music"></i>' : '<i class="fas fa-music-slash"></i>';
+            showNotification('الموسيقى', musicEnabled ? 'تم تشغيل الموسيقى' : 'تم إيقاف الموسيقى', 'info');
+        }
+
+        function getSelectedUser() {
+            // في تطبيق حقيقي، يتم اختيار المستهدف من قائمة
+            return 'لاعب';
+        }
+
+        function handleMessageSent(data) {
+            // محاكاة استلام رسالة
+            setTimeout(() => {
+                if (data && Math.random() > 0.3) {
+                    const responses = ['أهلاً!', 'كيف حالك؟', 'هل تريد اللعب؟'];
+                    const response = responses[Math.floor(Math.random() * responses.length)];
+                    addMessageToChat('لاعب', response, 'other');
+                }
+            }, 1000);
+        }
+
+        function initGameBoards() {
+            createXOBoard();
+            updateRoomsList();
+            loadChatHistory();
+        }
+
+        // ===== عرض الأكواد =====
+        function showServerCode() {
+            document.getElementById('codeViewer').classList.add('active');
+        }
+
+        // زر لعرض الأكواد (يمكن إضافته في واجهة الإعدادات)
+        setTimeout(() => {
+            const codeBtn = document.createElement('button');
+            codeBtn.className = 'btn btn-primary';
+            codeBtn.style.position = 'fixed';
+            codeBtn.style.bottom = '20px';
+            codeBtn.style.right = '20px';
+            codeBtn.innerHTML = '<i class="fas fa-code"></i> عرض الأكواد';
+            codeBtn.onclick = showServerCode;
+            document.body.appendChild(codeBtn);
+        }, 2000);
+    </script>
+</body>
+</html>
